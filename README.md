@@ -1,6 +1,7 @@
 # WebPedalBoard
 Javascript/HTML pedal board for Modern Browser to go Guitar Effects (Stomp Boxes)
 
+Use your webbrowser to launch EXAMPLE: firefox WebPedalBoard.html
 
 This manual covers the operation of the Master Studio Rig (Revision 2), which introduced the Stereo Widening switch and the corrected Chorus engine.
 This was created by Ronald Stoddard and Gemini in JavaScript with a text editor :). Javascript has the destinction of being cross-platform and will work with any modern OS/System.  
