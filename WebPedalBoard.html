@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Master Studio Rig: Fixed Chorus</title>
+    <style>
+        :root { --metal: #111; --chorus: #001a33; --delay: #002200; --flange: #330033; --wah: #332200; --accent: #ff4400; }
+        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+        
+        /* Layout Blocks */
+        .routing-panel { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #444; margin-bottom: 15px; width: 95%; max-width: 1200px; }
+        .slot-container { display: flex; justify-content: space-around; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .slot { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #2a2a2a; padding: 10px; border-radius: 8px; border: 1px solid #444; }
+        select { background: #111; color: white; border: 1px solid #555; padding: 4px; border-radius: 4px; font-size: 11px; width: 110px; }
+        .bypass-stomp { width: 100%; height: 25px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; font-size: 9px; background: #444; color: #888; }
+        .bypass-stomp.active { background: #0f0; color: black; box-shadow: 0 0 8px #0f0; }
+
+        .pedal-board { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; margin-bottom: 20px; }
+        .pedal { width: 205px; border: 2px solid #333; border-radius: 10px; padding: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.8); }
+        .mt2 { background: linear-gradient(180deg, #222, #000); border-color: var(--accent); }
+        .cho { background: var(--chorus); border-color: #00ccff; }
+        .flg { background: var(--flange); border-color: #ff00ff; }
+        .wah { background: var(--wah); border-color: #ffcc00; }
+        .dly { background: var(--delay); border-color: #00ff66; }
+        
+        h2 { font-size: 0.8rem; margin: 0 0 8px 0; text-transform: uppercase; text-align: center; }
+        .knob-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
+        .knob { display: flex; flex-direction: column; font-size: 9px; text-transform: uppercase; color: #aaa; }
+        
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--accent); }
+
+        .eq-container { background: #111; border: 1px solid #444; border-radius: 12px; padding: 25px; width: 95%; max-width: 1200px; margin-top: 10px; }
+        .eq-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; height: 360px; }
+        .eq-slider-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
+
+        .eq-v-slider {
+            -webkit-appearance: slider-vertical; 
+            writing-mode: bt-vertical;           
+            width: 20px !important;
+            height: 300px !important;            
+            margin: 0 auto;
+        }
+
+        .eq-label { font-size: 11px; color: #888; margin-top: 12px; font-weight: bold; font-family: monospace; }
+        .eq-mix-section { border-left: 2px solid #333; padding-left: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .bottom-row { display: flex; gap: 20px; align-items: center; justify-content: center; width: 95%; max-width: 1200px; margin-bottom: 20px; }
+        .recorder-box { background: #1a1a1a; border: 1px solid #444; border-radius: 8px; padding: 15px; width: 400px; display: flex; gap: 10px; align-items: center; }
+        #recBtn { flex: 2; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 5px; border: none; background: #333; color: white; }
+        #recBtn.recording { background: #f00; animation: pulse 1s infinite; }
+        
+        #stereoBtn { flex: 1; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 5px; border: 1px solid #444; background: #222; color: #666; font-size: 10px; }
+        #stereoBtn.active { background: #00ccff; color: black; border-color: #fff; box-shadow: 0 0 10px rgba(0,204,255,0.4); }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .power-btn { padding: 12px 40px; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 50px; border: 2px solid #444; background: #222; color: #666; margin-bottom: 15px; }
+        .power-btn.on { background: #f00; color: white; border-color: #ffaaaa; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <h1>Master Studio Rig</h1>
+    <button id="masterBtn" class="power-btn" onclick="toggleSystem()">OFF</button>
+
+    <div class="routing-panel">
+        <div class="slot-container">
+            🎸
+            <div class="slot"><select id="slot1" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp1" class="bypass-stomp active" onclick="toggleBypass(0)">ON</button></div> →
+            <div class="slot"><select id="slot2" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal" selected>MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp2" class="bypass-stomp active" onclick="toggleBypass(1)">ON</button></div> →
+            <div class="slot"><select id="slot3" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus" selected>Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp3" class="bypass-stomp active" onclick="toggleBypass(2)">ON</button></div> →
+            <div class="slot"><select id="slot4" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger" selected>Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp4" class="bypass-stomp active" onclick="toggleBypass(3)">ON</button></div> →
+            <div class="slot"><select id="slot5" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay" selected>Delay</option><option value="bypass">Empty</option></select><button id="bp5" class="bypass-stomp active" onclick="toggleBypass(4)">ON</button></div> → 🔊
+        </div>
+    </div>
+
+    <div class="pedal-board">
+        <div class="pedal mt2">
+            <h2 style="color:var(--accent)">Metal Zone 2</h2>
+            <div class="knob-grid">
+                <div class="knob">Gate <input type="range" min="-100" max="-20" value="-55" id="mtGate"></div>
+                <div class="knob">Dist <input type="range" min="0" max="1000" value="650" id="mtDist"></div>
+                <div class="knob">Low <input type="range" min="-15" max="15" value="6" id="mtLow"></div>
+                <div class="knob">High <input type="range" min="-15" max="15" value="6" id="mtHigh"></div>
+                <div class="knob">Mid Freq <input type="range" min="200" max="5000" value="1100" id="mtMidFreq"></div>
+                <div class="knob">Mid Gain <input type="range" min="-15" max="15" value="-10" id="mtMidLevel"></div>
+            </div>
+        </div>
+        <div class="pedal cho"><h2>Chorus</h2><div class="knob-grid"><div class="knob">Rate <input type="range" min="0.1" max="5" step="0.1" value="1.2" id="choRate"></div><div class="knob">Mix <input type="range" min="0" max="1" step="0.05" value="0.5" id="choMix"></div></div></div>
+        <div class="pedal flg"><h2>Flanger</h2><div class="knob-grid"><div class="knob">Speed <input type="range" min="0.05" max="2" step="0.01" value="0.15" id="flgRate"></div><div class="knob">Mix <input type="range" min="0" max="1" step="0.05" value="0.5" id="flgMix"></div></div></div>
+        <div class="pedal wah"><h2>Wah</h2><div class="knob-grid"><div class="knob">Sweep <input type="range" min="250" max="4000" value="1000" id="wahFreq"></div><div class="knob">Mix <input type="range" min="0" max="1" step="0.05" value="1.0" id="wahMix"></div></div></div>
+        <div class="pedal dly"><h2>Delay</h2><div class="knob-grid"><div class="knob">Time <input type="range" min="0.1" max="1" step="0.05" value="0.4" id="dlyTime"></div><div class="knob">Mix <input type="range" min="0" max="1" step="0.05" value="0.4" id="dlyMix"></div></div></div>
+    </div>
+
+    <div class="bottom-row">
+        <canvas id="scope" width="600" height="120"></canvas>
+        <div class="recorder-box">
+            <button id="stereoBtn" onclick="toggleStereo()">STEREO OFF</button>
+            <button id="recBtn" onclick="toggleRecording()">START RECORDING</button>
+            <a id="downloadLink" download="guitar-take.ogg" style="display:none; color:#0f0; font-size:11px; text-decoration:none;">DL</a>
+        </div>
+    </div>
+
+    <div class="eq-container">
+        <h2 style="text-align:left; font-size: 0.8rem; color: #888; margin-bottom: 20px;">MASTER 12-BAND GRAPHIC EQ</h2>
+        <div class="eq-grid" id="eqBars">
+            <div class="eq-mix-section">
+                <span class="eq-label" style="color:white; margin-bottom:15px;">EQ MIX</span>
+                <input type="range" orient="vertical" class="eq-v-slider" min="0" max="1" step="0.05" value="1" id="eqMix">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx, mic, analyzer, masterLimiter, recorder, recDestination;
+        let chunks = [];
+        let slots = [null, null, null, null, null]; 
+        let bypassStates = [false, false, false, false, false];
+        let eqFilters = [];
+        let eqDry, eqWet, stereoNode, isStereo = false;
+        const eqFreqs = [32, 64, 125, 250, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000];
+
+        const eqBars = document.getElementById('eqBars');
+        eqFreqs.forEach((f, i) => {
+            const div = document.createElement('div');
+            div.className = 'eq-slider-wrap';
+            div.innerHTML = `<input type="range" orient="vertical" class="eq-v-slider" min="-18" max="18" step="0.5" value="0" id="eq${i}" oninput="updateParams()"><span class="eq-label">${f < 1000 ? f : (f/1000)+'k'}</span>`;
+            eqBars.insertBefore(div, eqBars.lastElementChild);
+        });
+
+        async function toggleSystem() {
+            const btn = document.getElementById('masterBtn');
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } });
+                mic = audioCtx.createMediaStreamSource(stream);
+                analyzer = audioCtx.createAnalyser();
+                masterLimiter = audioCtx.createDynamicsCompressor();
+                eqDry = audioCtx.createGain();
+                eqWet = audioCtx.createGain();
+                eqFilters = eqFreqs.map(f => {
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = "peaking"; filter.frequency.value = f; filter.Q.value = 1.0; 
+                    return filter;
+                });
+                for(let i=0; i<eqFilters.length-1; i++) eqFilters[i].connect(eqFilters[i+1]);
+                recDestination = audioCtx.createMediaStreamDestination();
+                recorder = new MediaRecorder(recDestination.stream);
+                recorder.ondataavailable = e => chunks.push(e.data);
+                recorder.onstop = exportAudio;
+                reconnectChain();
+                draw();
+                btn.innerText = "POWER ON"; btn.classList.add('on');
+            } else {
+                if (audioCtx.state === 'running') { await audioCtx.suspend(); btn.innerText = "OFF"; btn.classList.remove('on'); }
+                else { await audioCtx.resume(); btn.innerText = "POWER ON"; btn.classList.add('on'); }
+            }
+        }
+
+        function createHaas() {
+            const c = audioCtx;
+            const input = c.createGain();
+            const merger = c.createChannelMerger(2);
+            const delay = c.createDelay();
+            delay.delayTime.value = 0.02; // Haas effect ~20ms
+            input.connect(merger, 0, 0); // Left channel (Direct)
+            input.connect(delay);
+            delay.connect(merger, 0, 1); // Right channel (Delayed)
+            return { in: input, out: merger };
+        }
+
+        function toggleStereo() {
+            isStereo = !isStereo;
+            const btn = document.getElementById('stereoBtn');
+            btn.innerText = isStereo ? "STEREO ON" : "STEREO OFF";
+            btn.classList.toggle('active', isStereo);
+            reconnectChain();
+        }
+
+        function createBypass() { const n = { in: audioCtx.createGain(), out: audioCtx.createGain(), type: 'bypass' }; n.in.connect(n.out); return n; }
+        
+        function createMetal() {
+            const c = audioCtx; const n = { in: c.createGain(), gate: c.createDynamicsCompressor(), dist: c.createWaveShaper(), low: c.createBiquadFilter(), high: c.createBiquadFilter(), mid: c.createBiquadFilter(), out: c.createGain(), type: 'metal' };
+            n.gate.ratio.value = 20; n.low.type = "lowshelf"; n.low.frequency.value = 120; n.high.type = "highshelf"; n.high.frequency.value = 3800; n.mid.type = "peaking"; n.mid.Q.value = 1.4;
+            n.in.connect(n.gate); n.gate.connect(n.dist); n.dist.connect(n.low); n.low.connect(n.high); n.high.connect(n.mid); n.mid.connect(n.out); return n;
+        }
+
+        // FIXED CHORUS LOGIC
+        function createChorus() {
+            const c = audioCtx; 
+            const n = { 
+                in: c.createGain(), 
+                dry: c.createGain(), 
+                wet: c.createGain(), 
+                dly: c.createDelay(), 
+                lfo: c.createOscillator(), 
+                lfoG: c.createGain(), 
+                out: c.createGain(), 
+                type: 'chorus' 
+            };
+            
+            // Set base delay to 30ms so modulation doesn't hit 0 (fixes scratching)
+            n.dly.delayTime.value = 0.03; 
+            n.lfo.type = 'sine';
+            n.lfo.connect(n.lfoG); 
+            n.lfoG.connect(n.dly.delayTime); 
+            
+            n.in.connect(n.dry); 
+            n.in.connect(n.dly); 
+            n.dly.connect(n.wet); 
+            n.dry.connect(n.out); 
+            n.wet.connect(n.out); 
+            n.lfo.start(); 
+            return n;
+        }
+
+        function createFlanger() {
+            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), fb: c.createGain(), out: c.createGain(), type: 'flanger' };
+            n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.fb); n.fb.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); n.lfoG.gain.value=0.002; return n;
+        }
+        function createWah() {
+            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), filter: c.createBiquadFilter(), out: c.createGain(), type: 'wah' };
+            n.filter.type = "bandpass"; n.filter.Q.value = 20; n.in.connect(n.dry); n.in.connect(n.filter); n.filter.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); return n;
+        }
+        function createDelay() {
+            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(2.0), fb: c.createGain(), out: c.createGain(), type: 'delay' };
+            n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.fb); n.fb.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.fb.gain.value=0.3; return n;
+        }
+
+        function reconnectChain() {
+            if (!mic) return;
+            mic.disconnect();
+            slots.forEach(s => { if(s) { s.in.disconnect(); s.out.disconnect(); if(s.lfo) try{s.lfo.stop();}catch(e){} } });
+            for(let i=0; i<5; i++) {
+                const type = document.getElementById(`slot${i+1}`).value;
+                if (type === 'bypass' || bypassStates[i]) slots[i] = createBypass();
+                else slots[i] = window[`create${type.charAt(0).toUpperCase() + type.slice(1)}`]();
+            }
+            mic.connect(slots[0].in);
+            slots[0].out.connect(slots[1].in); slots[1].out.connect(slots[2].in); slots[2].out.connect(slots[3].in); slots[3].out.connect(slots[4].in); slots[4].out.connect(masterLimiter);
+            masterLimiter.disconnect();
+            masterLimiter.connect(eqDry);
+            masterLimiter.connect(eqFilters[0]);
+            eqFilters[eqFilters.length-1].connect(eqWet);
+            const finalEqNode = audioCtx.createGain();
+            eqDry.connect(finalEqNode); eqWet.connect(finalEqNode);
+            
+            finalEqNode.disconnect();
+            if (isStereo) {
+                stereoNode = createHaas();
+                finalEqNode.connect(stereoNode.in);
+                stereoNode.out.connect(analyzer);
+                stereoNode.out.connect(recDestination);
+                stereoNode.out.connect(audioCtx.destination);
+            } else {
+                finalEqNode.connect(analyzer);
+                finalEqNode.connect(recDestination);
+                analyzer.connect(audioCtx.destination);
+            }
+            updateParams();
+        }
+
+        function toggleBypass(i) {
+            bypassStates[i] = !bypassStates[i];
+            document.getElementById(`bp${i+1}`).classList.toggle('active', !bypassStates[i]);
+            reconnectChain();
+        }
+
+        function updateParams() {
+            if (!audioCtx) return;
+            slots.forEach(s => {
+                if (s.type === 'metal') {
+                    const k = parseFloat(document.getElementById('mtDist').value);
+                    const n = 44100; const curve = new Float32Array(n);
+                    for (let i=0; i<n; i++) { let x = (i*2)/n-1; curve[i] = (3+k)*x*10*(Math.PI/180)/(Math.PI+k*Math.abs(x)); }
+                    s.dist.curve = curve;
+                    s.gate.threshold.value = document.getElementById('mtGate').value;
+                    s.low.gain.value = document.getElementById('mtLow').value;
+                    s.high.gain.value = document.getElementById('mtHigh').value;
+                    s.mid.frequency.value = document.getElementById('mtMidFreq').value;
+                    s.mid.gain.value = document.getElementById('mtMidLevel').value;
+                }
+                // FIXED CHORUS PARAMS
+                if (s.type === 'chorus') { 
+                    s.wet.gain.value = document.getElementById('choMix').value; 
+                    s.dry.gain.value = 1-document.getElementById('choMix').value; 
+                    s.lfo.frequency.value = document.getElementById('choRate').value;
+                    s.lfoG.gain.value = 0.002; // Fixed subtle depth (2ms)
+                }
+                if (s.type === 'flanger') { s.wet.gain.value = document.getElementById('flgMix').value; s.dry.gain.value = 1-document.getElementById('flgMix').value; s.lfo.frequency.value = document.getElementById('flgRate').value; }
+                if (s.type === 'wah') { s.filter.frequency.setTargetAtTime(document.getElementById('wahFreq').value, audioCtx.currentTime, 0.05); s.wet.gain.value = document.getElementById('wahMix').value; s.dry.gain.value = 1-document.getElementById('wahMix').value; }
+                if (s.type === 'delay') { s.dly.delayTime.setTargetAtTime(document.getElementById('dlyTime').value, audioCtx.currentTime, 0.1); s.wet.gain.value = document.getElementById('dlyMix').value; }
+            });
+            eqFreqs.forEach((f, i) => { if(eqFilters[i]) eqFilters[i].gain.value = document.getElementById(`eq${i}`).value; });
+            const mix = document.getElementById('eqMix').value;
+            eqWet.gain.value = mix; eqDry.gain.value = 1 - mix;
+        }
+
+        function toggleRecording() {
+            if (recorder.state === "inactive") { chunks = []; recorder.start(); document.getElementById('recBtn').innerText = "STOP"; document.getElementById('recBtn').classList.add('recording'); }
+            else { recorder.stop(); document.getElementById('recBtn').innerText = "START"; document.getElementById('recBtn').classList.remove('recording'); }
+        }
+
+        function exportAudio() {
+            const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
+            const link = document.getElementById('downloadLink');
+            link.href = URL.createObjectURL(blob); link.style.display = "inline-block";
+        }
+
+        document.querySelectorAll('input').forEach(i => i.oninput = updateParams);
+
+        function draw() {
+            requestAnimationFrame(draw);
+            const canvas = document.getElementById('scope'), c = canvas.getContext('2d');
+            const data = new Uint8Array(analyzer.frequencyBinCount);
+            analyzer.getByteTimeDomainData(data);
+            c.fillStyle = 'black'; c.fillRect(0,0,600,120);
+            c.strokeStyle = '#ff4400'; c.lineWidth = 2; c.beginPath();
+            let x = 0, slice = 600 / data.length;
+            for(let i=0; i<data.length; i++) {
+                let v = data[i]/128.0, y = v * 60;
+                i===0 ? c.moveTo(x,y) : c.lineTo(x,y); x += slice;
+            }
+            c.stroke();
+        }
+    </script>
+</body>
+</html>
