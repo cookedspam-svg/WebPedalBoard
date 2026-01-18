@@ -17,9 +17,9 @@
 
 <h3>Power On</h3>
 <ul>
-    <li>Click the large <strong>OFF</strong> button at the top left.</li>
+    <li>Click the large <strong>OFF</strong> button at the top center.</li>
     <li>It will turn <strong>red</strong> and display <strong>POWER ON</strong>.</li>
-    <li>Your browser will prompt for microphone access — choose <strong>Allow</strong>.</li>
+    <li>Your browser will prompt for microphone access — choose <strong>Allow</strong> and the microphone you would like to use.</li>
 </ul>
 
 <h3>Audio Input</h3>
