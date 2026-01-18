@@ -7,10 +7,10 @@
 <p><code>firefox WebPedalBoard.html</code></p>
 
 <p>
-    This manual covers the operation of the <strong>Master Studio Rig (Revision 2)</strong>, 
-    which introduced the Stereo Widening switch and the corrected Chorus engine. 
-    Created by Ronald Stoddard and Gemini in JavaScript using a text editor. 
-    JavaScript is cross‑platform and works with any modern OS.
+    This manual covers the operation of the <strong>STOMP-IT-TO-DEATH (Revision 11)</strong>, 
+    which introduced the Stereo Widening switch and the corrected Chorus engine, better layout, and 12 Band EQ
+    Created by Ronald Stoddard and Gemini in JavaScript using a text editor (kwrite in linux). 
+    JavaScript is cross‑platform and works with any modern OS including Windows, Linux, Mac OS.
 </p>
 
 <h2>Getting Started</h2>
@@ -25,7 +25,7 @@
 <h3>Audio Input</h3>
 <p>The rig automatically uses your system’s default microphone or audio interface.</p>
 
-<h3>Safety</h3>
+<h3>Sugestion...</h3>
 <p>Start with low volume — distortion pedals can be loud.</p>
 
 <h2>Signal Chain & Routing</h2>
@@ -33,7 +33,7 @@
 <p>The signal flows from left to right through five customizable slots.</p>
 
 <h3>Changing Effects</h3>
-<p>Use the dropdown menu above any slot to change the effect (e.g., replace Delay with Distortion).</p>
+<p>Use the dropdown menu above any slot to change the effect (e.g., replace Delay with Distortion, etc.).</p>
 
 <h3>Bypass (Stomp)</h3>
 <ul>
@@ -42,14 +42,14 @@
     <li><strong>Grey</strong> = bypassed (signal passes through unaffected).</li>
 </ul>
 
-<h3>Signal Path</h3>
+<h3>How are signals Routed within the JavaScript?</h3>
 <p>
     Input → Slot 1 → Slot 2 → Slot 3 → Slot 4 → Slot 5 → Master Limiter → EQ → Stereo/Mono → Output
 </p>
 
 <h2>Pedal Controls</h2>
 
-<h3>Metal Zone 2 (MT‑2)</h3>
+<h3>MZ-2 (MT‑2)</h3>
 <ul>
     <li><strong>Gate:</strong> Noise gate threshold (left = more noise reduction).</li>
     <li><strong>Dist:</strong> Amount of saturation/gain.</li>
@@ -93,17 +93,16 @@
     <li><strong>EQ Mix:</strong> Master fader blends EQ’d signal with raw signal.</li>
 </ul>
 
-<h3>Stereo / Mono Switch</h3>
+<h3>Stereo / Mono Switching</h3>
 <ul>
     <li><strong>STEREO OFF:</strong> Mono output.</li>
     <li><strong>STEREO ON (Cyan):</strong> Activates Haas Effect.</li>
 </ul>
 
-<p><strong>How it works:</strong></p>
+<p><strong>How it works:</strong>Simulating a Stereo Sound FX</p>
 <ul>
     <li>Left channel = dry.</li>
     <li>Right channel = delayed by 20ms.</li>
-    <li>Creates a wide stereo image (like two guitars).</li>
 </ul>
 
 <h3>Waveform Visualizer</h3>
@@ -127,13 +126,14 @@
 <h3>Latency (Delay)</h3>
 <ul>
     <li>Often caused by browser or Bluetooth headphones.</li>
+    <li>Use different System Microphone or Input type
     <li>Use wired headphones for best performance.</li>
 </ul>
 
 <h3>No Sound</h3>
 <ul>
     <li>Ensure Power On is active.</li>
-    <li>Check browser microphone permissions.</li>
+    <li>Check browser microphone permissions. Make sure to accept input</li>
 </ul>
 
 </body>
