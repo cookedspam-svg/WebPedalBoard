@@ -1,97 +1,140 @@
-# WebPedalBoard
-Javascript/HTML pedal board for Modern Browser to go Guitar Effects (Stomp Boxes)
+<!DOCTYPE html>
+<html lang="en">
+<body>
 
-Use your webbrowser to launch EXAMPLE: firefox WebPedalBoard.html
+<h1>Javascript/HTML Pedal Board for Modern Browsers</h1>
+<p>Use your web browser to launch the pedal board. Example:</p>
+<p><code>firefox WebPedalBoard.html</code></p>
 
-This manual covers the operation of the Master Studio Rig (Revision 2), which introduced the Stereo Widening switch and the corrected Chorus engine.
-This was created by Ronald Stoddard and Gemini in JavaScript with a text editor :). Javascript has the destinction of being cross-platform and will work with any modern OS/System.  
+<p>
+    This manual covers the operation of the <strong>Master Studio Rig (Revision 2)</strong>, 
+    which introduced the Stereo Widening switch and the corrected Chorus engine. 
+    Created by Ronald Stoddard and Gemini in JavaScript using a text editor. 
+    JavaScript is cross‑platform and works with any modern OS.
+</p>
 
-1. Getting Started
-Power On: Click the large OFF button at the top left. It will turn RED and say POWER ON.
+<h2>Getting Started</h2>
 
-Note: You must allow microphone access when prompted by your browser.
+<h3>Power On</h3>
+<ul>
+    <li>Click the large <strong>OFF</strong> button at the top left.</li>
+    <li>It will turn <strong>red</strong> and display <strong>POWER ON</strong>.</li>
+    <li>Your browser will prompt for microphone access — choose <strong>Allow</strong>.</li>
+</ul>
 
-Audio Input: The rig automatically grabs your default system microphone or audio interface input.
+<h3>Audio Input</h3>
+<p>The rig automatically uses your system’s default microphone or audio interface.</p>
 
-Safety: Always start with your volume low, as the distortion pedals can be loud.
+<h3>Safety</h3>
+<p>Start with low volume — distortion pedals can be loud.</p>
 
-2. Signal Chain & Routing
-The signal flows from Left to Right through 5 customizable slots.
+<h2>Signal Chain & Routing</h2>
 
-Changing Effects: Use the dropdown menu above any slot to change the effect (e.g., swap a Delay for a second Distortion).
+<p>The signal flows from left to right through five customizable slots.</p>
 
-Bypass (Stomp): Click the small ON/OFF button below any pedal to bypass it instantly. Green means the effect is active. Grey means it is bypassed (signal passes through unaffected).
+<h3>Changing Effects</h3>
+<p>Use the dropdown menu above any slot to change the effect (e.g., replace Delay with Distortion).</p>
 
-Signal Path: Input → Slot 1 → Slot 2 → Slot 3 → Slot 4 → Slot 5 → Master Limiter → EQ → Stereo/Mono → Output
+<h3>Bypass (Stomp)</h3>
+<ul>
+    <li>Click the small ON/OFF button below any pedal.</li>
+    <li><strong>Green</strong> = active.</li>
+    <li><strong>Grey</strong> = bypassed (signal passes through unaffected).</li>
+</ul>
 
-3. Pedal Controls
-Metal Zone 2 (MT-2)
-Gate: Controls the noise gate threshold. Slide left to cut background hiss/feedback.
+<h3>Signal Path</h3>
+<p>
+    Input → Slot 1 → Slot 2 → Slot 3 → Slot 4 → Slot 5 → Master Limiter → EQ → Stereo/Mono → Output
+</p>
 
-Dist: Controls the amount of saturation/gain.
+<h2>Pedal Controls</h2>
 
-Low/High: Shelving EQ for bass and treble response.
+<h3>Metal Zone 2 (MT‑2)</h3>
+<ul>
+    <li><strong>Gate:</strong> Noise gate threshold (left = more noise reduction).</li>
+    <li><strong>Dist:</strong> Amount of saturation/gain.</li>
+    <li><strong>Low/High:</strong> Bass and treble shelving EQ.</li>
+    <li><strong>Mid Freq:</strong> Select midrange frequency (200Hz–5kHz).</li>
+    <li><strong>Mid Gain:</strong> Boost/cut selected mid frequency.</li>
+</ul>
+<p><em>Tip: For classic metal, boost Dist and cut Mid Gain.</em></p>
 
-Mid Freq: Selects the specific midrange frequency to cut or boost (200Hz - 5kHz).
+<h3>Chorus (New Fixed Logic)</h3>
+<ul>
+    <li><strong>Rate:</strong> Modulation speed.</li>
+    <li><strong>Mix:</strong> Wet/dry blend.</li>
+</ul>
+<p><strong>Update:</strong> Includes a 30ms base delay buffer to eliminate “scratching” artifacts.</p>
 
-Mid Gain: Cuts or boosts the selected Mid Frequency. Tip: For a classic metal sound, boost the Dist, and cut the Mid Gain.
+<h3>Flanger</h3>
+<ul>
+    <li><strong>Speed:</strong> Rate of the “jet plane” sweep.</li>
+    <li><strong>Mix:</strong> Effect intensity.</li>
+</ul>
 
-Chorus (New Fixed Logic)
-Rate: Speed of the modulation.
+<h3>Wah</h3>
+<ul>
+    <li><strong>Sweep:</strong> Manual filter frequency control.</li>
+    <li><strong>Mix:</strong> Wah/clean blend.</li>
+</ul>
 
-Mix: Blends the wet (effected) and dry signal.
+<h3>Delay</h3>
+<ul>
+    <li><strong>Time:</strong> Echo length (0.1s–1.0s).</li>
+    <li><strong>Mix:</strong> Volume of repeats.</li>
+</ul>
 
-Update Note: This version features a 30ms base delay buffer to prevent the "scratching" artifacts present in older versions.
+<h2>Master Section</h2>
 
-Flanger
-Speed: Controls how fast the "jet plane" swoosh moves.
+<h3>12‑Band Graphic EQ</h3>
+<ul>
+    <li>12 sliders from 32Hz (sub‑bass) to 16kHz (air/sparkle).</li>
+    <li>Drag sliders up to boost or down to cut.</li>
+    <li><strong>EQ Mix:</strong> Master fader blends EQ’d signal with raw signal.</li>
+</ul>
 
-Mix: Intensity of the effect.
+<h3>Stereo / Mono Switch</h3>
+<ul>
+    <li><strong>STEREO OFF:</strong> Mono output.</li>
+    <li><strong>STEREO ON (Cyan):</strong> Activates Haas Effect.</li>
+</ul>
 
-Wah
-Sweep: Manually controls the filter frequency (like rocking a physical wah pedal).
+<p><strong>How it works:</strong></p>
+<ul>
+    <li>Left channel = dry.</li>
+    <li>Right channel = delayed by 20ms.</li>
+    <li>Creates a wide stereo image (like two guitars).</li>
+</ul>
 
-Mix: Blends the wah effect with the clean signal.
+<h3>Waveform Visualizer</h3>
+<p>Shows real‑time audio (post‑EQ, pre‑output).</p>
 
-Delay
-Time: Length of the echo (0.1s to 1.0s).
+<h3>Recording</h3>
+<ul>
+    <li><strong>Start:</strong> Click <strong>START RECORDING</strong> (button turns red and pulses).</li>
+    <li><strong>Stop:</strong> Click again (button labeled STOP).</li>
+    <li><strong>Save:</strong> A green <strong>DL</strong> link appears — click to download .ogg file.</li>
+</ul>
 
-Mix: Volume of the repeats.
+<h2>Troubleshooting</h2>
 
-4. Master Section
-12-Band Graphic EQ
-Located at the bottom of the screen.
+<h3>Feedback / Squealing</h3>
+<ul>
+    <li>Increase Gate threshold on Metal Zone.</li>
+    <li>Lower speaker volume (use headphones if possible).</li>
+</ul>
 
-Frequencies: 12 sliders ranging from 32Hz (sub-bass) to 16kHz (air/sparkle).
+<h3>Latency (Delay)</h3>
+<ul>
+    <li>Often caused by browser or Bluetooth headphones.</li>
+    <li>Use wired headphones for best performance.</li>
+</ul>
 
-Usage: Drag sliders up to boost or down to cut specific frequencies.
+<h3>No Sound</h3>
+<ul>
+    <li>Ensure Power On is active.</li>
+    <li>Check browser microphone permissions.</li>
+</ul>
 
-EQ Mix: The master fader on the right blends the EQ'd signal with the raw signal.
-
-Stereo / Mono Switch
-Located next to the Record button.
-
-STEREO OFF: The output is Mono (center channel only).
-
-STEREO ON (Cyan): Activates the Haas Effect.
-
-How it works: The left channel remains dry. The right channel is delayed by 20ms.
-
-Result: This creates a psychoacoustic "wide" stereo image, simulating two guitars playing at once.
-
-Waveform Visualizer
-Displays the real-time audio signal (Post-EQ, Pre-Output).
-
-5. Recording
-Start: Click START RECORDING. The button will turn Red and pulse.
-
-Stop: Click the button again (labeled STOP).
-
-Save: A green DL (Download) link will appear next to the button. Click it to save your riff as a .ogg file.
-
-6. Troubleshooting
-Feedback/Squealing: Increase the Gate threshold on the Metal Zone pedal or lower your speaker volume (if not using headphones).
-
-Latency (Delay): If there is a delay between playing and hearing, it is likely due to your browser or Bluetooth headphones. Wired headphones are recommended.
-
-No Sound: Ensure "Power On" is active and your browser microphone permissions are set to "Allow".
+</body>
+</html>
