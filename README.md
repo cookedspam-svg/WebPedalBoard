@@ -65,7 +65,7 @@
 </ul>
 <p><em>Tip: For classic metal, boost Dist and cut Mid Gain.</em></p>
 
-<h3>Chorus (New Fixed Logic)</h3>
+<h3>Chorus</h3>
 <ul>
     <li><strong>Rate:</strong> Modulation speed.</li>
     <li><strong>Mix:</strong> Wet/dry blend.</li>
