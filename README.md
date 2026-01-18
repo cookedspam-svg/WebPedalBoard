@@ -25,7 +25,7 @@
 <h3>Audio Input</h3>
 <p>The rig automatically uses your system’s default microphone or audio interface.</p>
 
-<h3>Sugestion...</h3>
+<h3>Suggestion...</h3>
 <p>Start with low volume — distortion pedals can be loud.</p>
 
 <h2>Signal Chain & Routing</h2>
