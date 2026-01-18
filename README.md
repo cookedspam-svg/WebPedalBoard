@@ -142,5 +142,66 @@
     <li>Check browser microphone permissions. Make sure to accept input</li>
 </ul>
 
+<section>
+    <h1>PANCAKE MENU GUIDE</h1>
+    <p>Preset Management & System Operations</p>
+
+    <div>
+        <h3>1. Load Preset</h3>
+        <p>
+            This dropdown list displays every tone you have saved to your browser database. 
+            Selecting a name instantly reconfigures the entire pedalboard—including routing order, 
+            knob positions, and bypass states.
+        </p>
+    </div>
+
+    <div>
+        <h3>2. Save Preset</h3>
+        <p>
+            Captures your current sound. It saves the <b>signal chain</b> (pedal order), 
+            <b>parameter values</b> (all slider positions), and <b>global settings</b> 
+            (Stereo/Mono) into the internal browser database.
+        </p>
+    </div>
+
+    <div>
+        <h3>3. Download JSON</h3>
+        <p>
+            Extracts your entire collection of presets from the browser and saves them 
+            as a <code>.json</code> file on your hard drive. Use this for off-site 
+            backups or to share your "Tone Pack" with others.
+        </p>
+    </div>
+
+    <div>
+        <h3>4. Upload JSON</h3>
+        <p>
+            Reads a <code>.json</code> file from your computer and merges those presets 
+            into your current library. It does not overwrite your existing sounds unless 
+            they share the exact same name.
+        </p>
+    </div>
+
+    <div>
+        <h3>5. Unload Presets (Reset)</h3>
+        <p>
+            <b>WARNING:</b> This is a destructive action. It performs a <b>Hard Reset</b> by:
+        </p>
+        <ul>
+            <li>Wiping the internal browser database (IndexedDB).</li>
+            <li>Returning all sliders and routing to factory default values.</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <p>
+        <i><b>TECHNICAL NOTE:</b> This app uses <b>IndexedDB</b> technology. 
+        Unlike standard cookies, this allows your presets to be stored locally on 
+        your device with no size limit, ensuring your custom tones are ready every 
+        time you load the page.</i>
+    </p>
+</section>
+
 </body>
 </html>
