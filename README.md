@@ -7,7 +7,7 @@
 <p><code>firefox WebPedalBoard.html</code></p>
 
 <p>
-    <strong>STOMP-IT-TO-DEATH (Revision 11)</strong>: I made this because I was tired of messing with JACK, PipeWire, and Guitarix on Linux. I didn’t want to fire up a whole audio setup just for jamming; I just wanted to open a web browser and start playing.Google Gemini and I wrote this in JavaScript using a text editor (kwrite in linux). JavaScript is cross‑platform and works with any modern OS including Windows, Linux, Mac OS. This was written in a couple of hours on the weekend for myself, but I thought it would be fun to place this on GitHub for the enjoyment of others. 
+    <strong>STOMP-IT-TO-DEATH (Revision 11)</strong>: I made this because I was tired of messing with JACK, PipeWire, and Guitarix on Linux. I didn’t want to fire up a whole audio setup just for jamming; I just wanted to open a web browser and start playing.Google Gemini and I wrote this in JavaScript using a text editor (kwrite in linux). JavaScript is cross‑platform and works with any modern OS including Windows, Linux, Mac OS. This was written in a couple of hours on the weekend for myself, but I thought it would be fun to place this on GitHub, and make it available for the enjoyment of others. 
 </p>
 
 <p>
