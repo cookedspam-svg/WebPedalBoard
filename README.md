@@ -2,15 +2,12 @@
 <html lang="en">
 <body>
 
-<h1>Javascript/HTML Pedal Board for Modern Browsers</h1>
+<h1>STOMP-IT-TO-DEATH: Javascript/HTML Pedal Board for Modern Browsers</h1>
 <p>Use your web browser to launch the pedal board. Example:</p>
 <p><code>firefox WebPedalBoard.html</code></p>
 
 <p>
-    This manual covers the operation of the <strong>STOMP-IT-TO-DEATH (Revision 11)</strong>, 
-    which introduced the Stereo Widening switch and the corrected Chorus engine, better layout, and 12 Band EQ
-    Created by Ronald Stoddard and Gemini in JavaScript using a text editor (kwrite in linux). 
-    JavaScript is cross‑platform and works with any modern OS including Windows, Linux, Mac OS.
+    <strong>STOMP-IT-TO-DEATH (Revision 11)</strong>: I made this because I was tired of messing with JACK, PipeWire, and Guitarix on Linux. I didn’t want to fire up a whole audio setup just for jamming; I just wanted to open a web browser and start playing.Google Gemini and I wrote this in JavaScript using a text editor (kwrite in linux). JavaScript is cross‑platform and works with any modern OS including Windows, Linux, Mac OS. This was written in a couple of hours on the weekend for myself, but I thought it would be fun to place this on GitHub for the enjoyment of others. 
 </p>
 
 <h2>Getting Started</h2>
