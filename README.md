@@ -141,8 +141,6 @@
     <li>Ensure Power On is active.</li>
     <li>Check browser microphone permissions. Make sure to accept input</li>
 </ul>
-
-<section>
     <h1>PANCAKE MENU GUIDE</h1>
     <p>Preset Management & System Operations</p>
 
@@ -201,7 +199,7 @@
         your device with no size limit, ensuring your custom tones are ready every 
         time you load the page.</i>
     </p>
-</section>
+
 
 </body>
 </html>
