@@ -3,7 +3,7 @@
 <body>
 
 <h1>STOMP-IT-TO-DEATH: Javascript/HTML Pedal Board for Modern Browsers</h1>
-<p>The nice thing about JavaScript and HTML is there is no compiling. Just use your web browser to launch the pedal board, or place it on a mini web server. The easiest way to launch is here  (Example - HOW TO USE):</p>
+<p>The nice thing about JavaScript, CSS and HTML is there is no compiling. Just use your web browser to launch the pedal board, or place it on a mini web server. The easiest way to launch is here  (Example - HOW TO USE):</p>
 <p><code>firefox WebPedalBoard.html</code></p>
 
 <p>
