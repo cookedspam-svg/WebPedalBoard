@@ -141,7 +141,7 @@
     <li>Ensure Power On is active.</li>
     <li>Check browser microphone permissions. Make sure to accept input</li>
 </ul>
-    <h1>PANCAKE MENU GUIDE</h1>
+    <h2>PANCAKE MENU GUIDE</h2>
     <p>Preset Management & System Operations</p>
 <div>
     <h3>1. Load Preset</h3>
