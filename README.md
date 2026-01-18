@@ -23,7 +23,7 @@
 </ul>
 
 <h3>Audio Input</h3>
-<p>The rig automatically uses your system’s default microphone or audio interface.</p>
+<p>STOMP-IT-TO-DEATH automatically uses your system’s default microphone or audio interface.</p>
 
 <h3>Suggestions on how to start</h3>
 <ul>
