@@ -3,7 +3,7 @@
 <body>
 
 <h1>STOMP-IT-TO-DEATH: Javascript/HTML Pedal Board for Modern Browsers</h1>
-<p>Use your web browser to launch the pedal board. Example:</p>
+<p>Use your web browser to launch the pedal board. Example - HOW TO USE:</p>
 <p><code>firefox WebPedalBoard.html</code></p>
 
 <p>
