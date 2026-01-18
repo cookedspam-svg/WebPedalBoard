@@ -5,10 +5,26 @@
     <title>STOMP-IT-TO-DEATH</title>
     <style>
         :root { --metal: #111; --chorus: #001a33; --delay: #002200; --flange: #330033; --wah: #332200; --accent: #ff4400; }
-        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
         
-        /* Layout Blocks */
-        .routing-panel { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #444; margin-bottom: 15px; width: 95%; max-width: 1200px; }
+        /* MENU STYLES */
+        .menu-container { position: absolute; top: 10px; left: 10px; z-index: 1000; }
+        .pancake-btn { 
+            width: 30px; height: 30px; background: #333; border: 1px solid #555; border-radius: 4px; 
+            cursor: pointer; display: flex; flex-direction: column; justify-content: space-around; padding: 5px; 
+        }
+        .pancake-btn span { width: 100%; height: 3px; background: #eee; border-radius: 2px; }
+        .menu-content { 
+            display: none; position: absolute; top: 35px; left: 0; background: #222; 
+            border: 1px solid #444; padding: 10px; border-radius: 8px; width: 180px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .menu-content.show { display: flex; flex-direction: column; gap: 10px; }
+        .menu-item { display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: #aaa; }
+        .menu-content button, .menu-content select { width: 100%; padding: 5px; background: #111; color: white; border: 1px solid #444; cursor: pointer; font-size: 11px; text-align: left; }
+        .menu-content button:hover { background: #333; }
+        .btn-danger { color: #ff4444 !important; }
+
+        .routing-panel { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #444; margin-bottom: 15px; width: 95%; max-width: 1200px; margin-top: 40px; }
         .slot-container { display: flex; justify-content: space-around; align-items: center; gap: 5px; flex-wrap: wrap; }
         .slot { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #2a2a2a; padding: 10px; border-radius: 8px; border: 1px solid #444; }
         select { background: #111; color: white; border: 1px solid #555; padding: 4px; border-radius: 4px; font-size: 11px; width: 110px; }
@@ -26,21 +42,12 @@
         h2 { font-size: 0.8rem; margin: 0 0 8px 0; text-transform: uppercase; text-align: center; }
         .knob-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
         .knob { display: flex; flex-direction: column; font-size: 9px; text-transform: uppercase; color: #aaa; }
-        
         input[type=range] { width: 100%; cursor: pointer; accent-color: var(--accent); }
 
         .eq-container { background: #111; border: 1px solid #444; border-radius: 12px; padding: 25px; width: 95%; max-width: 1200px; margin-top: 10px; }
         .eq-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; height: 360px; }
         .eq-slider-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
-
-        .eq-v-slider {
-            -webkit-appearance: slider-vertical; 
-            writing-mode: bt-vertical;           
-            width: 20px !important;
-            height: 300px !important;            
-            margin: 0 auto;
-        }
-
+        .eq-v-slider { -webkit-appearance: slider-vertical; writing-mode: bt-vertical; width: 20px !important; height: 300px !important; margin: 0 auto; }
         .eq-label { font-size: 11px; color: #888; margin-top: 12px; font-weight: bold; font-family: monospace; }
         .eq-mix-section { border-left: 2px solid #333; padding-left: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
@@ -48,17 +55,36 @@
         .recorder-box { background: #1a1a1a; border: 1px solid #444; border-radius: 8px; padding: 15px; width: 400px; display: flex; gap: 10px; align-items: center; }
         #recBtn { flex: 2; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 5px; border: none; background: #333; color: white; }
         #recBtn.recording { background: #f00; animation: pulse 1s infinite; }
-        
         #stereoBtn { flex: 1; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 5px; border: 1px solid #444; background: #222; color: #666; font-size: 10px; }
         #stereoBtn.active { background: #00ccff; color: black; border-color: #fff; box-shadow: 0 0 10px rgba(0,204,255,0.4); }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
         .power-btn { padding: 12px 40px; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 50px; border: 2px solid #444; background: #222; color: #666; margin-bottom: 15px; }
         .power-btn.on { background: #f00; color: white; border-color: #ffaaaa; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
     </style>
 </head>
 <body>
+
+    <div class="menu-container">
+        <button class="pancake-btn" onclick="document.getElementById('pancakeMenu').classList.toggle('show')">
+            <span></span><span></span><span></span>
+        </button>
+        <div id="pancakeMenu" class="menu-content">
+            <div class="menu-item">
+                LOAD PRESET
+                <select id="presetSelect" onchange="loadPreset(this.value)">
+                    <option value="">- Select -</option>
+                </select>
+            </div>
+            <hr style="width:100%; border:0; border-top:1px solid #444;">
+            <button onclick="savePreset()">SAVE PRESET</button>
+            <button onclick="downloadPresets()">DOWNLOAD JSON</button>
+            <button onclick="document.getElementById('importFile').click()">UPLOAD JSON</button>
+            <hr style="width:100%; border:0; border-top:1px solid #444;">
+            <button class="btn-danger" onclick="unloadPresets()">UNLOAD PRESETS (RESET)</button>
+            <input type="file" id="importFile" style="display:none" onchange="uploadPresets(event)">
+        </div>
+    </div>
 
     <h1>STOMP-IT-TO-DEATH Guitar FX</h1>
     <button id="masterBtn" class="power-btn" onclick="toggleSystem()">OFF</button>
@@ -78,7 +104,7 @@
         <div class="pedal mt2">
             <h2 style="color:var(--accent)">MZ-2</h2>
             <div class="knob-grid">
-                <div class="knob">Gate <input type="range" min="-100" max="-20" value="-55" id="mtGate"></div>
+                <div class="knob">Gate <input type="range" min="-100" max="-10" value="-55" id="mtGate"></div>
                 <div class="knob">Dist <input type="range" min="0" max="1000" value="650" id="mtDist"></div>
                 <div class="knob">Low <input type="range" min="-15" max="15" value="6" id="mtLow"></div>
                 <div class="knob">High <input type="range" min="-15" max="15" value="6" id="mtHigh"></div>
@@ -120,6 +146,14 @@
         let eqDry, eqWet, stereoNode, isStereo = false;
         const eqFreqs = [32, 64, 125, 250, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000];
 
+        // Default values for reset
+        const defaultValues = {
+            slot1: "wah", slot2: "metal", slot3: "chorus", slot4: "flanger", slot5: "delay",
+            mtGate: "-55", mtDist: "650", mtLow: "6", mtHigh: "6", mtMidFreq: "1100", mtMidLevel: "-10",
+            choRate: "1.2", choMix: "0.5", flgRate: "0.15", flgMix: "0.5",
+            wahFreq: "1000", wahMix: "1.0", dlyTime: "0.4", dlyMix: "0.4", eqMix: "1"
+        };
+
         const eqBars = document.getElementById('eqBars');
         eqFreqs.forEach((f, i) => {
             const div = document.createElement('div');
@@ -128,6 +162,147 @@
             eqBars.insertBefore(div, eqBars.lastElementChild);
         });
 
+        /* --- PRESET SYSTEM LOGIC (IndexedDB) --- */
+        let db;
+        const dbName = "StompItPresetsDB";
+        const request = indexedDB.open(dbName, 1);
+
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("presets")) {
+                db.createObjectStore("presets", { keyPath: "name" });
+            }
+        };
+
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            updatePresetList();
+        };
+
+        function savePreset() {
+            const name = prompt("Enter preset name:");
+            if (!name) return;
+            const state = {
+                name: name,
+                slots: Array.from({length:5}, (_, i) => document.getElementById(`slot${i+1}`).value),
+                bypass: [...bypassStates],
+                ranges: {},
+                isStereo: isStereo
+            };
+            document.querySelectorAll('input[type=range]').forEach(input => {
+                state.ranges[input.id] = input.value;
+            });
+            const transaction = db.transaction(["presets"], "readwrite");
+            const store = transaction.objectStore("presets");
+            store.put(state);
+            transaction.oncomplete = () => {
+                updatePresetList();
+                alert("Preset Saved!");
+            };
+        }
+
+        function updatePresetList() {
+            if (!db) return;
+            const select = document.getElementById('presetSelect');
+            const store = db.transaction("presets").objectStore("presets");
+            const request = store.getAll();
+            request.onsuccess = () => {
+                select.innerHTML = '<option value="">- Select -</option>';
+                request.result.forEach(preset => {
+                    const opt = document.createElement('option');
+                    opt.value = preset.name; opt.innerText = preset.name;
+                    select.appendChild(opt);
+                });
+            };
+        }
+
+        function loadPreset(name) {
+            if (!name) return;
+            const store = db.transaction("presets").objectStore("presets");
+            const request = store.get(name);
+            request.onsuccess = () => {
+                const state = request.result;
+                if (!state) return;
+                state.slots.forEach((val, i) => { document.getElementById(`slot${i+1}`).value = val; });
+                state.bypass.forEach((val, i) => { 
+                    bypassStates[i] = val; 
+                    document.getElementById(`bp${i+1}`).classList.toggle('active', !val);
+                });
+                for (let id in state.ranges) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = state.ranges[id];
+                }
+                isStereo = state.isStereo;
+                const sBtn = document.getElementById('stereoBtn');
+                sBtn.innerText = isStereo ? "STEREO ON" : "STEREO OFF";
+                sBtn.classList.toggle('active', isStereo);
+                reconnectChain();
+                document.getElementById('pancakeMenu').classList.remove('show');
+            };
+        }
+
+        function unloadPresets() {
+            if (!confirm("Are you sure? This will delete all saved presets and reset the pedalboard to defaults.")) return;
+            
+            // 1. Clear IndexedDB
+            const transaction = db.transaction(["presets"], "readwrite");
+            const store = transaction.objectStore("presets");
+            store.clear();
+            transaction.oncomplete = () => {
+                updatePresetList();
+                
+                // 2. Reset UI to defaults
+                for (let id in defaultValues) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = defaultValues[id];
+                }
+                // Reset EQ bands
+                eqFreqs.forEach((_, i) => { document.getElementById(`eq${i}`).value = "0"; });
+                // Reset Bypass & Stereo
+                bypassStates = [false, false, false, false, false];
+                for(let i=1; i<=5; i++) document.getElementById(`bp${i}`).classList.add('active');
+                isStereo = false;
+                const sBtn = document.getElementById('stereoBtn');
+                sBtn.innerText = "STEREO OFF";
+                sBtn.classList.remove('active');
+
+                reconnectChain();
+                document.getElementById('pancakeMenu').classList.remove('show');
+                alert("Presets cleared and system reset.");
+            };
+        }
+
+        function downloadPresets() {
+            const store = db.transaction("presets").objectStore("presets");
+            const request = store.getAll();
+            request.onsuccess = () => {
+                const blob = new Blob([JSON.stringify(request.result)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'stomp_presets_db.json'; a.click();
+            };
+        }
+
+        function uploadPresets(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    const transaction = db.transaction(["presets"], "readwrite");
+                    const store = transaction.objectStore("presets");
+                    imported.forEach(preset => store.put(preset));
+                    transaction.oncomplete = () => {
+                        updatePresetList();
+                        alert("Presets Imported!");
+                    };
+                } catch (err) { alert("Invalid File Format"); }
+            };
+            reader.readAsText(file);
+        }
+
+        /* --- AUDIO LOGIC --- */
         async function toggleSystem() {
             const btn = document.getElementById('masterBtn');
             if (!audioCtx) {
@@ -158,14 +333,8 @@
         }
 
         function createHaas() {
-            const c = audioCtx;
-            const input = c.createGain();
-            const merger = c.createChannelMerger(2);
-            const delay = c.createDelay();
-            delay.delayTime.value = 0.02; // Haas effect ~20ms
-            input.connect(merger, 0, 0); // Left channel (Direct)
-            input.connect(delay);
-            delay.connect(merger, 0, 1); // Right channel (Delayed)
+            const c = audioCtx; const input = c.createGain(); const merger = c.createChannelMerger(2); const delay = c.createDelay();
+            delay.delayTime.value = 0.02; input.connect(merger, 0, 0); input.connect(delay); delay.connect(merger, 0, 1);
             return { in: input, out: merger };
         }
 
@@ -178,42 +347,16 @@
         }
 
         function createBypass() { const n = { in: audioCtx.createGain(), out: audioCtx.createGain(), type: 'bypass' }; n.in.connect(n.out); return n; }
-        
         function createMetal() {
             const c = audioCtx; const n = { in: c.createGain(), gate: c.createDynamicsCompressor(), dist: c.createWaveShaper(), low: c.createBiquadFilter(), high: c.createBiquadFilter(), mid: c.createBiquadFilter(), out: c.createGain(), type: 'metal' };
             n.gate.ratio.value = 20; n.low.type = "lowshelf"; n.low.frequency.value = 120; n.high.type = "highshelf"; n.high.frequency.value = 3800; n.mid.type = "peaking"; n.mid.Q.value = 1.4;
             n.in.connect(n.gate); n.gate.connect(n.dist); n.dist.connect(n.low); n.low.connect(n.high); n.high.connect(n.mid); n.mid.connect(n.out); return n;
         }
-
-        // FIXED CHORUS LOGIC
         function createChorus() {
-            const c = audioCtx; 
-            const n = { 
-                in: c.createGain(), 
-                dry: c.createGain(), 
-                wet: c.createGain(), 
-                dly: c.createDelay(), 
-                lfo: c.createOscillator(), 
-                lfoG: c.createGain(), 
-                out: c.createGain(), 
-                type: 'chorus' 
-            };
-            
-            // Set base delay to 30ms so modulation doesn't hit 0 (fixes scratching)
-            n.dly.delayTime.value = 0.03; 
-            n.lfo.type = 'sine';
-            n.lfo.connect(n.lfoG); 
-            n.lfoG.connect(n.dly.delayTime); 
-            
-            n.in.connect(n.dry); 
-            n.in.connect(n.dly); 
-            n.dly.connect(n.wet); 
-            n.dry.connect(n.out); 
-            n.wet.connect(n.out); 
-            n.lfo.start(); 
+            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), out: c.createGain(), type: 'chorus' };
+            n.dly.delayTime.value = 0.03; n.lfo.type = 'sine'; n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); 
             return n;
         }
-
         function createFlanger() {
             const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), fb: c.createGain(), out: c.createGain(), type: 'flanger' };
             n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.fb); n.fb.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); n.lfoG.gain.value=0.002; return n;
@@ -238,24 +381,14 @@
             }
             mic.connect(slots[0].in);
             slots[0].out.connect(slots[1].in); slots[1].out.connect(slots[2].in); slots[2].out.connect(slots[3].in); slots[3].out.connect(slots[4].in); slots[4].out.connect(masterLimiter);
-            masterLimiter.disconnect();
-            masterLimiter.connect(eqDry);
-            masterLimiter.connect(eqFilters[0]);
+            masterLimiter.disconnect(); masterLimiter.connect(eqDry); masterLimiter.connect(eqFilters[0]);
             eqFilters[eqFilters.length-1].connect(eqWet);
-            const finalEqNode = audioCtx.createGain();
-            eqDry.connect(finalEqNode); eqWet.connect(finalEqNode);
-            
+            const finalEqNode = audioCtx.createGain(); eqDry.connect(finalEqNode); eqWet.connect(finalEqNode);
             finalEqNode.disconnect();
             if (isStereo) {
-                stereoNode = createHaas();
-                finalEqNode.connect(stereoNode.in);
-                stereoNode.out.connect(analyzer);
-                stereoNode.out.connect(recDestination);
-                stereoNode.out.connect(audioCtx.destination);
+                stereoNode = createHaas(); finalEqNode.connect(stereoNode.in); stereoNode.out.connect(analyzer); stereoNode.out.connect(recDestination); stereoNode.out.connect(audioCtx.destination);
             } else {
-                finalEqNode.connect(analyzer);
-                finalEqNode.connect(recDestination);
-                analyzer.connect(audioCtx.destination);
+                finalEqNode.connect(analyzer); finalEqNode.connect(recDestination); analyzer.connect(audioCtx.destination);
             }
             updateParams();
         }
@@ -273,27 +406,20 @@
                     const k = parseFloat(document.getElementById('mtDist').value);
                     const n = 44100; const curve = new Float32Array(n);
                     for (let i=0; i<n; i++) { let x = (i*2)/n-1; curve[i] = (3+k)*x*10*(Math.PI/180)/(Math.PI+k*Math.abs(x)); }
-                    s.dist.curve = curve;
-                    s.gate.threshold.value = document.getElementById('mtGate').value;
-                    s.low.gain.value = document.getElementById('mtLow').value;
-                    s.high.gain.value = document.getElementById('mtHigh').value;
-                    s.mid.frequency.value = document.getElementById('mtMidFreq').value;
-                    s.mid.gain.value = document.getElementById('mtMidLevel').value;
+                    s.dist.curve = curve; s.gate.threshold.value = document.getElementById('mtGate').value;
+                    s.low.gain.value = document.getElementById('mtLow').value; s.high.gain.value = document.getElementById('mtHigh').value;
+                    s.mid.frequency.value = document.getElementById('mtMidFreq').value; s.mid.gain.value = document.getElementById('mtMidLevel').value;
                 }
-                // FIXED CHORUS PARAMS
                 if (s.type === 'chorus') { 
-                    s.wet.gain.value = document.getElementById('choMix').value; 
-                    s.dry.gain.value = 1-document.getElementById('choMix').value; 
-                    s.lfo.frequency.value = document.getElementById('choRate').value;
-                    s.lfoG.gain.value = 0.002; // Fixed subtle depth (2ms)
+                    s.wet.gain.value = document.getElementById('choMix').value; s.dry.gain.value = 1-document.getElementById('choMix').value; 
+                    s.lfo.frequency.value = document.getElementById('choRate').value; s.lfoG.gain.value = 0.002;
                 }
                 if (s.type === 'flanger') { s.wet.gain.value = document.getElementById('flgMix').value; s.dry.gain.value = 1-document.getElementById('flgMix').value; s.lfo.frequency.value = document.getElementById('flgRate').value; }
                 if (s.type === 'wah') { s.filter.frequency.setTargetAtTime(document.getElementById('wahFreq').value, audioCtx.currentTime, 0.05); s.wet.gain.value = document.getElementById('wahMix').value; s.dry.gain.value = 1-document.getElementById('wahMix').value; }
                 if (s.type === 'delay') { s.dly.delayTime.setTargetAtTime(document.getElementById('dlyTime').value, audioCtx.currentTime, 0.1); s.wet.gain.value = document.getElementById('dlyMix').value; }
             });
             eqFreqs.forEach((f, i) => { if(eqFilters[i]) eqFilters[i].gain.value = document.getElementById(`eq${i}`).value; });
-            const mix = document.getElementById('eqMix').value;
-            eqWet.gain.value = mix; eqDry.gain.value = 1 - mix;
+            const mix = document.getElementById('eqMix').value; eqWet.gain.value = mix; eqDry.gain.value = 1 - mix;
         }
 
         function toggleRecording() {
@@ -322,6 +448,12 @@
                 i===0 ? c.moveTo(x,y) : c.lineTo(x,y); x += slice;
             }
             c.stroke();
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.pancake-btn') && !event.target.parentNode.matches('.pancake-btn') && !event.target.closest('.menu-content')) {
+                document.getElementById('pancakeMenu').classList.remove('show');
+            }
         }
     </script>
 </body>
