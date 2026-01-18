@@ -10,6 +10,9 @@
     <strong>STOMP-IT-TO-DEATH (Revision 11)</strong>: I made this because I was tired of messing with JACK, PipeWire, and Guitarix on Linux. I didn’t want to fire up a whole audio setup just for jamming; I just wanted to open a web browser and start playing.Google Gemini and I wrote this in JavaScript using a text editor (kwrite in linux). JavaScript is cross‑platform and works with any modern OS including Windows, Linux, Mac OS. This was written in a couple of hours on the weekend for myself, but I thought it would be fun to place this on GitHub for the enjoyment of others. 
 </p>
 
+<p>
+    Created by Ronald Stoddard and Google Gemini. The design Ideas are entirely mine, which I got the idea from reading about Linus, of Linux fame creating guitar stomp boxes and placing those ideas on GitHub. It was a early Saturday morning idea, between reading Reddit and playing with the Guitars and my six year old. I had read that Linus was using AI to create guitar effects ideas and manipulate actual code. I thought... why... not!
+</p>
 <h2>Getting Started</h2>
 
 <h3>Power On</h3>
