@@ -199,5 +199,31 @@
     time you load the page.</i>
 </p>
 
+<h2> The Guitar Tuner</h2>
+<h3>1. Initialization</h3>
+<p>
+    To use the tuner, you must first click the <strong>"OFF"</strong> (Master Power) button to toggle it to <strong>"POWER ON"</strong>. This grants the browser permission to access your microphone. The tuner is hard-coded to receive a "dry" signal directly from your input, meaning it stays accurate even if you have heavy distortion or effects active on your virtual pedalboard.
+</p>
+
+<h3>2. Understanding the Visual Interface</h3>
+<p>
+    The tuner interface consists of three main components located in the bottom row of the application:
+</p>
+<ul>
+    <li><strong>The Note Box:</strong> Displays the musical note detected (e.g., E, A, D, G, B). If no sound is detected or the signal is too quiet, it will display "--".</li>
+    <li><strong>The Top Arrow (Up):</strong> This indicates your string is <strong>Flat</strong> (the pitch is too low). You need to tighten the tuning peg on your guitar.</li>
+    <li><strong>The Bottom Arrow (Down):</strong> This indicates your string is <strong>Sharp</strong> (the pitch is too high). You need to loosen the tuning peg on your guitar.</li>
+</ul>
+
+<h3>3. Achieving Perfect Pitch</h3>
+<p>
+    When the pitch is within 5 percent of the target note, the central note box will turn <strong>Green/Yellow</strong>. This is your signal to stop adjusting. For the best results, pluck the string firmly once and let it ring; avoid plucking rapidly, as the "Auto-Correlation" algorithm needs a steady waveform to calculate the frequency accurately.
+</p>
+
+<h3>4. Technical Tips for Accuracy</h3>
+<p>
+    If the tuner is jumping between notes or struggling to "lock on," try switching to your guitar's <strong>neck pickup</strong> and rolling the tone knob down. This removes high-frequency overtones, providing the algorithm with a "purer" fundamental frequency to analyze. Ensure you only play one string at a time, as the code is monophonic and cannot process chords.
+</p>
+
 </body>
 </html>
