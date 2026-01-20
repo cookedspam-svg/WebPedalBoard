@@ -51,8 +51,29 @@
         .eq-label { font-size: 11px; color: #888; margin-top: 12px; font-weight: bold; font-family: monospace; }
         .eq-mix-section { border-left: 2px solid #333; padding-left: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        .bottom-row { display: flex; gap: 20px; align-items: center; justify-content: center; width: 95%; max-width: 1200px; margin-bottom: 20px; }
-        .recorder-box { background: #1a1a1a; border: 1px solid #444; border-radius: 8px; padding: 15px; width: 400px; display: flex; gap: 10px; align-items: center; }
+        /* --- TUNER & MONITOR SECTION --- */
+        .bottom-row { display: flex; gap: 15px; align-items: center; justify-content: center; width: 95%; max-width: 1200px; margin-bottom: 20px; }
+        
+        /* Tuner Styles */
+        .tuner-box { 
+            width: 80px; height: 120px; background: #000; border: 2px solid #333; border-radius: 8px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+            padding: 5px;
+        }
+        .tuner-arrow { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; opacity: 0.2; transition: all 0.1s; }
+        .arrow-up { border-bottom: 30px solid #f00; margin-bottom: 2px; }
+        .arrow-down { border-top: 30px solid #f00; margin-top: 2px; }
+        .tuner-note { 
+            width: 50px; height: 40px; background: #444; color: #111; border-radius: 4px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 24px; font-weight: bold; font-family: monospace;
+        }
+        /* Tuner Active States */
+        .tuner-note.tuned { background: #99cc00; color: black; box-shadow: 0 0 15px #99cc00; }
+        .arrow-up.active { border-bottom-color: #0f0; opacity: 1; filter: drop-shadow(0 0 8px #0f0); }
+        .arrow-down.active { border-top-color: #f00; opacity: 1; filter: drop-shadow(0 0 8px #f00); }
+
+        .recorder-box { background: #1a1a1a; border: 1px solid #444; border-radius: 8px; padding: 15px; width: 350px; display: flex; gap: 10px; align-items: center; height: 90px; }
         #recBtn { flex: 2; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 5px; border: none; background: #333; color: white; }
         #recBtn.recording { background: #f00; animation: pulse 1s infinite; }
         #stereoBtn { flex: 1; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 5px; border: 1px solid #444; background: #222; color: #666; font-size: 10px; }
@@ -119,6 +140,12 @@
     </div>
 
     <div class="bottom-row">
+        <div class="tuner-box">
+            <div id="tuneUp" class="tuner-arrow arrow-up"></div>
+            <div id="tuneNote" class="tuner-note">--</div>
+            <div id="tuneDown" class="tuner-arrow arrow-down"></div>
+        </div>
+
         <canvas id="scope" width="600" height="120"></canvas>
         <div class="recorder-box">
             <button id="stereoBtn" onclick="toggleStereo()">STEREO OFF</button>
@@ -138,13 +165,14 @@
     </div>
 
     <script>
-        let audioCtx, mic, analyzer, masterLimiter, recorder, recDestination;
+        let audioCtx, mic, analyzer, tunerAnalyzer, masterLimiter, recorder, recDestination;
         let chunks = [];
         let slots = [null, null, null, null, null]; 
         let bypassStates = [false, false, false, false, false];
         let eqFilters = [];
         let eqDry, eqWet, stereoNode, isStereo = false;
         const eqFreqs = [32, 64, 125, 250, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000];
+        const noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
         // Default values for reset
         const defaultValues = {
@@ -162,7 +190,7 @@
             eqBars.insertBefore(div, eqBars.lastElementChild);
         });
 
-        /* --- PRESET SYSTEM LOGIC (IndexedDB) --- */
+        /* --- PRESET SYSTEM LOGIC --- */
         let db;
         const dbName = "StompItPresetsDB";
         const request = indexedDB.open(dbName, 1);
@@ -243,29 +271,22 @@
 
         function unloadPresets() {
             if (!confirm("Are you sure? This will delete all saved presets and reset the pedalboard to defaults.")) return;
-            
-            // 1. Clear IndexedDB
             const transaction = db.transaction(["presets"], "readwrite");
             const store = transaction.objectStore("presets");
             store.clear();
             transaction.oncomplete = () => {
                 updatePresetList();
-                
-                // 2. Reset UI to defaults
                 for (let id in defaultValues) {
                     const el = document.getElementById(id);
                     if (el) el.value = defaultValues[id];
                 }
-                // Reset EQ bands
                 eqFreqs.forEach((_, i) => { document.getElementById(`eq${i}`).value = "0"; });
-                // Reset Bypass & Stereo
                 bypassStates = [false, false, false, false, false];
                 for(let i=1; i<=5; i++) document.getElementById(`bp${i}`).classList.add('active');
                 isStereo = false;
                 const sBtn = document.getElementById('stereoBtn');
                 sBtn.innerText = "STEREO OFF";
                 sBtn.classList.remove('active');
-
                 reconnectChain();
                 document.getElementById('pancakeMenu').classList.remove('show');
                 alert("Presets cleared and system reset.");
@@ -293,10 +314,7 @@
                     const transaction = db.transaction(["presets"], "readwrite");
                     const store = transaction.objectStore("presets");
                     imported.forEach(preset => store.put(preset));
-                    transaction.oncomplete = () => {
-                        updatePresetList();
-                        alert("Presets Imported!");
-                    };
+                    transaction.oncomplete = () => { updatePresetList(); alert("Presets Imported!"); };
                 } catch (err) { alert("Invalid File Format"); }
             };
             reader.readAsText(file);
@@ -309,7 +327,15 @@
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } });
                 mic = audioCtx.createMediaStreamSource(stream);
-                analyzer = audioCtx.createAnalyser();
+                
+                // ANALYZERS
+                analyzer = audioCtx.createAnalyser(); // For visualizer
+                tunerAnalyzer = audioCtx.createAnalyser(); // Dedicated for tuner
+                tunerAnalyzer.fftSize = 2048;
+
+                // Split signal for tuning (dry) and effects (wet)
+                mic.connect(tunerAnalyzer);
+
                 masterLimiter = audioCtx.createDynamicsCompressor();
                 eqDry = audioCtx.createGain();
                 eqWet = audioCtx.createGain();
@@ -323,8 +349,9 @@
                 recorder = new MediaRecorder(recDestination.stream);
                 recorder.ondataavailable = e => chunks.push(e.data);
                 recorder.onstop = exportAudio;
+                
                 reconnectChain();
-                draw();
+                draw(); // Start loop
                 btn.innerText = "POWER ON"; btn.classList.add('on');
             } else {
                 if (audioCtx.state === 'running') { await audioCtx.suspend(); btn.innerText = "OFF"; btn.classList.remove('on'); }
@@ -354,13 +381,47 @@
         }
         function createChorus() {
             const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), out: c.createGain(), type: 'chorus' };
-            n.dly.delayTime.value = 0.03; n.lfo.type = 'sine'; n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); 
+            n.dly.delayTime.value = 0.03; n.lfo.type = 'sine'; n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); return n;
+        }
+
+        // --- UPDATED FLANGER FUNCTION ---
+        function createFlanger() {
+            const c = audioCtx; 
+            const n = { 
+                in: c.createGain(), 
+                dry: c.createGain(), 
+                wet: c.createGain(), 
+                dly: c.createDelay(), 
+                lfo: c.createOscillator(), 
+                lfoG: c.createGain(), 
+                fb: c.createGain(), // Feedback node
+                out: c.createGain(), 
+                type: 'flanger' 
+            };
+
+            // Fix 1: Set base delay to 5ms so LFO doesn't clip at 0
+            n.dly.delayTime.value = 0.005; 
+
+            n.lfo.connect(n.lfoG); 
+            n.lfoG.connect(n.dly.delayTime); 
+            n.in.connect(n.dry); 
+            n.in.connect(n.dly); 
+            n.dly.connect(n.fb); 
+            n.fb.connect(n.dly); 
+            n.dly.connect(n.wet); 
+            n.dry.connect(n.out); 
+            n.wet.connect(n.out); 
+            
+            n.lfo.start(); 
+            n.lfoG.gain.value = 0.002; 
+
+            // Fix 2: Reduce feedback to prevent infinite volume
+            n.fb.gain.value = 0.5; 
+
             return n;
         }
-        function createFlanger() {
-            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), fb: c.createGain(), out: c.createGain(), type: 'flanger' };
-            n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.fb); n.fb.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); n.lfoG.gain.value=0.002; return n;
-        }
+        // --------------------------------
+
         function createWah() {
             const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), filter: c.createBiquadFilter(), out: c.createGain(), type: 'wah' };
             n.filter.type = "bandpass"; n.filter.Q.value = 20; n.in.connect(n.dry); n.in.connect(n.filter); n.filter.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); return n;
@@ -372,7 +433,7 @@
 
         function reconnectChain() {
             if (!mic) return;
-            mic.disconnect();
+            mic.disconnect(); mic.connect(tunerAnalyzer); // Always Keep Tuner Connected
             slots.forEach(s => { if(s) { s.in.disconnect(); s.out.disconnect(); if(s.lfo) try{s.lfo.stop();}catch(e){} } });
             for(let i=0; i<5; i++) {
                 const type = document.getElementById(`slot${i+1}`).value;
@@ -435,8 +496,85 @@
 
         document.querySelectorAll('input').forEach(i => i.oninput = updateParams);
 
+        /* --- TUNER PITCH DETECTION ALGORITHM --- */
+        function autoCorrelate(buf, sampleRate) {
+            let SIZE = buf.length;
+            let rms = 0;
+            for (let i = 0; i < SIZE; i++) { const val = buf[i]; rms += val * val; }
+            rms = Math.sqrt(rms / SIZE);
+            if (rms < 0.01) return -1; // Not enough signal
+
+            let r1 = 0, r2 = SIZE - 1, thres = 0.2;
+            for (let i = 0; i < SIZE / 2; i++)
+                if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+            for (let i = 1; i < SIZE / 2; i++)
+                if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+
+            buf = buf.slice(r1, r2);
+            SIZE = buf.length;
+
+            let c = new Array(SIZE).fill(0);
+            for (let i = 0; i < SIZE; i++)
+                for (let j = 0; j < SIZE - i; j++)
+                    c[i] = c[i] + buf[j] * buf[j + i];
+
+            let d = 0; while (c[d] > c[d + 1]) d++;
+            let maxval = -1, maxpos = -1;
+            for (let i = d; i < SIZE; i++) {
+                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+            }
+            let T0 = maxpos;
+
+            // Parabolic interpolation for precision
+            let x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
+            let a = (x1 + x3 - 2 * x2) / 2;
+            let b = (x3 - x1) / 2;
+            if (a) T0 = T0 - b / (2 * a);
+
+            return sampleRate / T0;
+        }
+
+        function updateTuner() {
+            if (!tunerAnalyzer) return;
+            const buf = new Float32Array(tunerAnalyzer.fftSize);
+            tunerAnalyzer.getFloatTimeDomainData(buf);
+            const freq = autoCorrelate(buf, audioCtx.sampleRate);
+
+            const nDisplay = document.getElementById('tuneNote');
+            const upArrow = document.getElementById('tuneUp');
+            const downArrow = document.getElementById('tuneDown');
+
+            upArrow.classList.remove('active');
+            downArrow.classList.remove('active');
+            nDisplay.classList.remove('tuned');
+
+            if (freq === -1) {
+                nDisplay.innerText = "--";
+                return;
+            }
+
+            const noteNum = 12 * (Math.log(freq / 440) / Math.log(2)) + 69; // 69 is A4
+            const noteIndex = Math.round(noteNum);
+            const noteName = noteStrings[noteIndex % 12];
+            const detune = Math.floor((noteNum - noteIndex) * 100); // Cents
+
+            nDisplay.innerText = noteName;
+
+            if (Math.abs(detune) < 5) { // In tune (within 5 cents)
+                nDisplay.classList.add('tuned');
+            } else if (detune < -5) {
+                // Too Low -> Fill Top Arrow (Green per request)
+                upArrow.classList.add('active');
+            } else {
+                // Too High -> Fill Bottom Arrow (Red)
+                downArrow.classList.add('active');
+            }
+        }
+
         function draw() {
             requestAnimationFrame(draw);
+            
+            // Update Scope
             const canvas = document.getElementById('scope'), c = canvas.getContext('2d');
             const data = new Uint8Array(analyzer.frequencyBinCount);
             analyzer.getByteTimeDomainData(data);
@@ -448,6 +586,9 @@
                 i===0 ? c.moveTo(x,y) : c.lineTo(x,y); x += slice;
             }
             c.stroke();
+
+            // Update Tuner
+            updateTuner();
         }
 
         window.onclick = function(event) {
