@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>STOMP-IT-TO-DEATH</title>
+    <title>STOMP-IT-TO-DEATH - PRO</title>
     <style>
         :root { --metal: #111; --chorus: #001a33; --delay: #002200; --flange: #330033; --wah: #332200; --accent: #ff4400; }
         body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
@@ -24,7 +24,8 @@
         .menu-content button:hover { background: #333; }
         .btn-danger { color: #ff4444 !important; }
 
-        .routing-panel { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #444; margin-bottom: 15px; width: 95%; max-width: 1200px; margin-top: 40px; }
+        /* Modified routing panel margin to accommodate the tube preamp moving above it */
+        .routing-panel { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #444; margin-bottom: 15px; width: 95%; max-width: 1170px; margin-top: 15px; }
         .slot-container { display: flex; justify-content: space-around; align-items: center; gap: 5px; flex-wrap: wrap; }
         .slot { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #2a2a2a; padding: 10px; border-radius: 8px; border: 1px solid #444; }
         select { background: #111; color: white; border: 1px solid #555; padding: 4px; border-radius: 4px; font-size: 11px; width: 110px; }
@@ -44,17 +45,21 @@
         .knob { display: flex; flex-direction: column; font-size: 9px; text-transform: uppercase; color: #aaa; }
         input[type=range] { width: 100%; cursor: pointer; accent-color: var(--accent); }
 
-        .eq-container { background: #111; border: 1px solid #444; border-radius: 12px; padding: 25px; width: 95%; max-width: 1200px; margin-top: 10px; }
+        .eq-container, .gate-container, .tube-container { background: #111; border: 1px solid #444; border-radius: 12px; padding: 25px; width: 95%; max-width: 1200px; margin-top: 10px; box-sizing: border-box; }
+        
         .eq-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; height: 360px; }
         .eq-slider-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
         .eq-v-slider { -webkit-appearance: slider-vertical; writing-mode: bt-vertical; width: 20px !important; height: 300px !important; margin: 0 auto; }
         .eq-label { font-size: 11px; color: #888; margin-top: 12px; font-weight: bold; font-family: monospace; }
         .eq-mix-section { border-left: 2px solid #333; padding-left: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* --- TUNER & MONITOR SECTION --- */
-        .bottom-row { display: flex; gap: 15px; align-items: center; justify-content: center; width: 95%; max-width: 1200px; margin-bottom: 20px; }
+        .horizontal-module { display: flex; align-items: center; gap: 20px; }
+        .module-title { font-size: 0.75rem; color: #888; text-transform: uppercase; min-width: 150px; font-weight: bold; }
+        .toggle-btn { padding: 8px 15px; border-radius: 4px; border: 1px solid #444; background: #222; color: #666; cursor: pointer; font-size: 10px; font-weight: bold; }
+        .toggle-btn.active { background: var(--accent); color: white; border-color: #ff6600; box-shadow: 0 0 10px rgba(255,68,0,0.3); }
+
+        .bottom-row { display: flex; gap: 15px; align-items: center; justify-content: center; width: 95%; max-width: 1200px; margin-bottom: 20px; margin-top: 20px; }
         
-        /* Tuner Styles */
         .tuner-box { 
             width: 80px; height: 120px; background: #000; border: 2px solid #333; border-radius: 8px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
@@ -68,7 +73,6 @@
             display: flex; align-items: center; justify-content: center; 
             font-size: 24px; font-weight: bold; font-family: monospace;
         }
-        /* Tuner Active States */
         .tuner-note.tuned { background: #99cc00; color: black; box-shadow: 0 0 15px #99cc00; }
         .arrow-up.active { border-bottom-color: #0f0; opacity: 1; filter: drop-shadow(0 0 8px #0f0); }
         .arrow-down.active { border-top-color: #f00; opacity: 1; filter: drop-shadow(0 0 8px #f00); }
@@ -91,12 +95,7 @@
             <span></span><span></span><span></span>
         </button>
         <div id="pancakeMenu" class="menu-content">
-            <div class="menu-item">
-                LOAD PRESET
-                <select id="presetSelect" onchange="loadPreset(this.value)">
-                    <option value="">- Select -</option>
-                </select>
-            </div>
+            <div class="menu-item">LOAD PRESET <select id="presetSelect" onchange="loadPreset(this.value)"><option value="">- Select -</option></select></div>
             <hr style="width:100%; border:0; border-top:1px solid #444;">
             <button onclick="savePreset()">SAVE PRESET</button>
             <button onclick="downloadPresets()">DOWNLOAD JSON</button>
@@ -109,6 +108,18 @@
 
     <h1>STOMP-IT-TO-DEATH Guitar FX</h1>
     <button id="masterBtn" class="power-btn" onclick="toggleSystem()">OFF</button>
+
+    <div class="tube-container">
+        <div class="horizontal-module">
+            <div class="module-title">Tube Preamp Emulator</div>
+            <button id="tubeToggle" class="toggle-btn active" onclick="toggleTubePower()">TUBE ON</button>
+            <div style="flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 5px;"><span class="eq-label" style="margin-top:0">Drive</span><input type="range" min="1" max="20" step="0.1" value="5" id="tubeDrive" style="accent-color: var(--accent);"></div>
+                <div style="display: flex; flex-direction: column; gap: 5px;"><span class="eq-label" style="margin-top:0">Tube Sag</span><input type="range" min="0" max="1" step="0.01" value="0.5" id="tubeSag" style="accent-color: var(--accent);"></div>
+                <div style="display: flex; flex-direction: column; gap: 5px;"><span class="eq-label" style="margin-top:0">Output</span><input type="range" min="0" max="2" step="0.05" value="1" id="tubeOutput" style="accent-color: var(--accent);"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="routing-panel">
         <div class="slot-container">
@@ -145,7 +156,6 @@
             <div id="tuneNote" class="tuner-note">--</div>
             <div id="tuneDown" class="tuner-arrow arrow-down"></div>
         </div>
-
         <canvas id="scope" width="600" height="120"></canvas>
         <div class="recorder-box">
             <button id="stereoBtn" onclick="toggleStereo()">STEREO OFF</button>
@@ -164,6 +174,17 @@
         </div>
     </div>
 
+    <div class="gate-container">
+        <div class="horizontal-module">
+            <div class="module-title">Master Noise Gate</div>
+            <button id="gateToggle" class="toggle-btn active" onclick="toggleGatePower()">GATE ON</button>
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px;">
+                <span class="eq-label" style="margin-top:0">Threshold (dB)</span>
+                <input type="range" min="-100" max="-20" step="1" value="-60" id="masterGateThreshold" style="accent-color: var(--accent);">
+            </div>
+        </div>
+    </div>
+
     <script>
         let audioCtx, mic, analyzer, tunerAnalyzer, masterLimiter, recorder, recDestination;
         let chunks = [];
@@ -171,16 +192,12 @@
         let bypassStates = [false, false, false, false, false];
         let eqFilters = [];
         let eqDry, eqWet, stereoNode, isStereo = false;
+        
+        let masterGateNode, tubeAmpNode, tubeGainIn, tubeGainOut;
+        let isGateOn = true, isTubeOn = true;
+
         const eqFreqs = [32, 64, 125, 250, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000];
         const noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-
-        // Default values for reset
-        const defaultValues = {
-            slot1: "wah", slot2: "metal", slot3: "chorus", slot4: "flanger", slot5: "delay",
-            mtGate: "-55", mtDist: "650", mtLow: "6", mtHigh: "6", mtMidFreq: "1100", mtMidLevel: "-10",
-            choRate: "1.2", choMix: "0.5", flgRate: "0.15", flgMix: "0.5",
-            wahFreq: "1000", wahMix: "1.0", dlyTime: "0.4", dlyMix: "0.4", eqMix: "1"
-        };
 
         const eqBars = document.getElementById('eqBars');
         eqFreqs.forEach((f, i) => {
@@ -190,168 +207,39 @@
             eqBars.insertBefore(div, eqBars.lastElementChild);
         });
 
-        /* --- PRESET SYSTEM LOGIC --- */
-        let db;
-        const dbName = "StompItPresetsDB";
-        const request = indexedDB.open(dbName, 1);
-
-        request.onupgradeneeded = (e) => {
-            db = e.target.result;
-            if (!db.objectStoreNames.contains("presets")) {
-                db.createObjectStore("presets", { keyPath: "name" });
-            }
-        };
-
-        request.onsuccess = (e) => {
-            db = e.target.result;
-            updatePresetList();
-        };
-
-        function savePreset() {
-            const name = prompt("Enter preset name:");
-            if (!name) return;
-            const state = {
-                name: name,
-                slots: Array.from({length:5}, (_, i) => document.getElementById(`slot${i+1}`).value),
-                bypass: [...bypassStates],
-                ranges: {},
-                isStereo: isStereo
-            };
-            document.querySelectorAll('input[type=range]').forEach(input => {
-                state.ranges[input.id] = input.value;
-            });
-            const transaction = db.transaction(["presets"], "readwrite");
-            const store = transaction.objectStore("presets");
-            store.put(state);
-            transaction.oncomplete = () => {
-                updatePresetList();
-                alert("Preset Saved!");
-            };
-        }
-
-        function updatePresetList() {
-            if (!db) return;
-            const select = document.getElementById('presetSelect');
-            const store = db.transaction("presets").objectStore("presets");
-            const request = store.getAll();
-            request.onsuccess = () => {
-                select.innerHTML = '<option value="">- Select -</option>';
-                request.result.forEach(preset => {
-                    const opt = document.createElement('option');
-                    opt.value = preset.name; opt.innerText = preset.name;
-                    select.appendChild(opt);
-                });
-            };
-        }
-
-        function loadPreset(name) {
-            if (!name) return;
-            const store = db.transaction("presets").objectStore("presets");
-            const request = store.get(name);
-            request.onsuccess = () => {
-                const state = request.result;
-                if (!state) return;
-                state.slots.forEach((val, i) => { document.getElementById(`slot${i+1}`).value = val; });
-                state.bypass.forEach((val, i) => { 
-                    bypassStates[i] = val; 
-                    document.getElementById(`bp${i+1}`).classList.toggle('active', !val);
-                });
-                for (let id in state.ranges) {
-                    const el = document.getElementById(id);
-                    if (el) el.value = state.ranges[id];
-                }
-                isStereo = state.isStereo;
-                const sBtn = document.getElementById('stereoBtn');
-                sBtn.innerText = isStereo ? "STEREO ON" : "STEREO OFF";
-                sBtn.classList.toggle('active', isStereo);
-                reconnectChain();
-                document.getElementById('pancakeMenu').classList.remove('show');
-            };
-        }
-
-        function unloadPresets() {
-            if (!confirm("Are you sure? This will delete all saved presets and reset the pedalboard to defaults.")) return;
-            const transaction = db.transaction(["presets"], "readwrite");
-            const store = transaction.objectStore("presets");
-            store.clear();
-            transaction.oncomplete = () => {
-                updatePresetList();
-                for (let id in defaultValues) {
-                    const el = document.getElementById(id);
-                    if (el) el.value = defaultValues[id];
-                }
-                eqFreqs.forEach((_, i) => { document.getElementById(`eq${i}`).value = "0"; });
-                bypassStates = [false, false, false, false, false];
-                for(let i=1; i<=5; i++) document.getElementById(`bp${i}`).classList.add('active');
-                isStereo = false;
-                const sBtn = document.getElementById('stereoBtn');
-                sBtn.innerText = "STEREO OFF";
-                sBtn.classList.remove('active');
-                reconnectChain();
-                document.getElementById('pancakeMenu').classList.remove('show');
-                alert("Presets cleared and system reset.");
-            };
-        }
-
-        function downloadPresets() {
-            const store = db.transaction("presets").objectStore("presets");
-            const request = store.getAll();
-            request.onsuccess = () => {
-                const blob = new Blob([JSON.stringify(request.result)], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = 'stomp_presets_db.json'; a.click();
-            };
-        }
-
-        function uploadPresets(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    const transaction = db.transaction(["presets"], "readwrite");
-                    const store = transaction.objectStore("presets");
-                    imported.forEach(preset => store.put(preset));
-                    transaction.oncomplete = () => { updatePresetList(); alert("Presets Imported!"); };
-                } catch (err) { alert("Invalid File Format"); }
-            };
-            reader.readAsText(file);
-        }
-
-        /* --- AUDIO LOGIC --- */
         async function toggleSystem() {
             const btn = document.getElementById('masterBtn');
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } });
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
                 mic = audioCtx.createMediaStreamSource(stream);
                 
-                // ANALYZERS
-                analyzer = audioCtx.createAnalyser(); // For visualizer
-                tunerAnalyzer = audioCtx.createAnalyser(); // Dedicated for tuner
+                analyzer = audioCtx.createAnalyser();
+                tunerAnalyzer = audioCtx.createAnalyser(); 
                 tunerAnalyzer.fftSize = 2048;
 
-                // Split signal for tuning (dry) and effects (wet)
-                mic.connect(tunerAnalyzer);
-
                 masterLimiter = audioCtx.createDynamicsCompressor();
-                eqDry = audioCtx.createGain();
-                eqWet = audioCtx.createGain();
+                masterGateNode = audioCtx.createDynamicsCompressor();
+                masterGateNode.ratio.value = 20;
+
+                tubeAmpNode = audioCtx.createWaveShaper();
+                tubeGainIn = audioCtx.createGain(); tubeGainOut = audioCtx.createGain();
+                
+                eqDry = audioCtx.createGain(); eqWet = audioCtx.createGain();
                 eqFilters = eqFreqs.map(f => {
                     const filter = audioCtx.createBiquadFilter();
-                    filter.type = "peaking"; filter.frequency.value = f; filter.Q.value = 1.0; 
+                    filter.type = "peaking"; filter.frequency.value = f; filter.Q.value = 1.2; 
                     return filter;
                 });
                 for(let i=0; i<eqFilters.length-1; i++) eqFilters[i].connect(eqFilters[i+1]);
+                
                 recDestination = audioCtx.createMediaStreamDestination();
                 recorder = new MediaRecorder(recDestination.stream);
                 recorder.ondataavailable = e => chunks.push(e.data);
                 recorder.onstop = exportAudio;
                 
                 reconnectChain();
-                draw(); // Start loop
+                draw();
                 btn.innerText = "POWER ON"; btn.classList.add('on');
             } else {
                 if (audioCtx.state === 'running') { await audioCtx.suspend(); btn.innerText = "OFF"; btn.classList.remove('on'); }
@@ -359,105 +247,59 @@
             }
         }
 
-        function createHaas() {
-            const c = audioCtx; const input = c.createGain(); const merger = c.createChannelMerger(2); const delay = c.createDelay();
-            delay.delayTime.value = 0.02; input.connect(merger, 0, 0); input.connect(delay); delay.connect(merger, 0, 1);
-            return { in: input, out: merger };
-        }
-
-        function toggleStereo() {
-            isStereo = !isStereo;
-            const btn = document.getElementById('stereoBtn');
-            btn.innerText = isStereo ? "STEREO ON" : "STEREO OFF";
-            btn.classList.toggle('active', isStereo);
-            reconnectChain();
-        }
-
-        function createBypass() { const n = { in: audioCtx.createGain(), out: audioCtx.createGain(), type: 'bypass' }; n.in.connect(n.out); return n; }
-        function createMetal() {
-            const c = audioCtx; const n = { in: c.createGain(), gate: c.createDynamicsCompressor(), dist: c.createWaveShaper(), low: c.createBiquadFilter(), high: c.createBiquadFilter(), mid: c.createBiquadFilter(), out: c.createGain(), type: 'metal' };
-            n.gate.ratio.value = 20; n.low.type = "lowshelf"; n.low.frequency.value = 120; n.high.type = "highshelf"; n.high.frequency.value = 3800; n.mid.type = "peaking"; n.mid.Q.value = 1.4;
-            n.in.connect(n.gate); n.gate.connect(n.dist); n.dist.connect(n.low); n.low.connect(n.high); n.high.connect(n.mid); n.mid.connect(n.out); return n;
-        }
-        function createChorus() {
-            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), out: c.createGain(), type: 'chorus' };
-            n.dly.delayTime.value = 0.03; n.lfo.type = 'sine'; n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); return n;
-        }
-
-        // --- UPDATED FLANGER FUNCTION ---
-        function createFlanger() {
-            const c = audioCtx; 
-            const n = { 
-                in: c.createGain(), 
-                dry: c.createGain(), 
-                wet: c.createGain(), 
-                dly: c.createDelay(), 
-                lfo: c.createOscillator(), 
-                lfoG: c.createGain(), 
-                fb: c.createGain(), // Feedback node
-                out: c.createGain(), 
-                type: 'flanger' 
-            };
-
-            // Fix 1: Set base delay to 5ms so LFO doesn't clip at 0
-            n.dly.delayTime.value = 0.005; 
-
-            n.lfo.connect(n.lfoG); 
-            n.lfoG.connect(n.dly.delayTime); 
-            n.in.connect(n.dry); 
-            n.in.connect(n.dly); 
-            n.dly.connect(n.fb); 
-            n.fb.connect(n.dly); 
-            n.dly.connect(n.wet); 
-            n.dry.connect(n.out); 
-            n.wet.connect(n.out); 
-            
-            n.lfo.start(); 
-            n.lfoG.gain.value = 0.002; 
-
-            // Fix 2: Reduce feedback to prevent infinite volume
-            n.fb.gain.value = 0.5; 
-
-            return n;
-        }
-        // --------------------------------
-
-        function createWah() {
-            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), filter: c.createBiquadFilter(), out: c.createGain(), type: 'wah' };
-            n.filter.type = "bandpass"; n.filter.Q.value = 20; n.in.connect(n.dry); n.in.connect(n.filter); n.filter.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); return n;
-        }
-        function createDelay() {
-            const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(2.0), fb: c.createGain(), out: c.createGain(), type: 'delay' };
-            n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.fb); n.fb.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.fb.gain.value=0.3; return n;
-        }
-
         function reconnectChain() {
             if (!mic) return;
-            mic.disconnect(); mic.connect(tunerAnalyzer); // Always Keep Tuner Connected
+            mic.disconnect();
+            masterLimiter.disconnect();
+            masterGateNode.disconnect();
+            tubeGainOut.disconnect();
+            eqDry.disconnect();
+            eqWet.disconnect();
+            analyzer.disconnect();
+
+            mic.connect(tunerAnalyzer);
+
             slots.forEach(s => { if(s) { s.in.disconnect(); s.out.disconnect(); if(s.lfo) try{s.lfo.stop();}catch(e){} } });
+            
             for(let i=0; i<5; i++) {
                 const type = document.getElementById(`slot${i+1}`).value;
                 if (type === 'bypass' || bypassStates[i]) slots[i] = createBypass();
                 else slots[i] = window[`create${type.charAt(0).toUpperCase() + type.slice(1)}`]();
             }
+
             mic.connect(slots[0].in);
-            slots[0].out.connect(slots[1].in); slots[1].out.connect(slots[2].in); slots[2].out.connect(slots[3].in); slots[3].out.connect(slots[4].in); slots[4].out.connect(masterLimiter);
-            masterLimiter.disconnect(); masterLimiter.connect(eqDry); masterLimiter.connect(eqFilters[0]);
+            slots[0].out.connect(slots[1].in); slots[1].out.connect(slots[2].in); 
+            slots[2].out.connect(slots[3].in); slots[3].out.connect(slots[4].in); 
+            slots[4].out.connect(masterLimiter);
+
+            masterLimiter.connect(eqDry); 
+            masterLimiter.connect(eqFilters[0]);
             eqFilters[eqFilters.length-1].connect(eqWet);
-            const finalEqNode = audioCtx.createGain(); eqDry.connect(finalEqNode); eqWet.connect(finalEqNode);
-            finalEqNode.disconnect();
+
+            const eqOutNode = audioCtx.createGain();
+            eqDry.connect(eqOutNode); eqWet.connect(eqOutNode);
+
+            let lastNode = eqOutNode;
+            if (isGateOn) { lastNode.connect(masterGateNode); lastNode = masterGateNode; }
+            if (isTubeOn) { 
+                lastNode.connect(tubeGainIn); tubeGainIn.connect(tubeAmpNode); 
+                tubeAmpNode.connect(tubeGainOut); lastNode = tubeGainOut; 
+            }
+
+            const finalNode = audioCtx.createGain();
+            lastNode.connect(finalNode);
+
             if (isStereo) {
-                stereoNode = createHaas(); finalEqNode.connect(stereoNode.in); stereoNode.out.connect(analyzer); stereoNode.out.connect(recDestination); stereoNode.out.connect(audioCtx.destination);
+                stereoNode = createHaas(); finalNode.connect(stereoNode.in); 
+                stereoNode.out.connect(analyzer); 
+                stereoNode.out.connect(recDestination); 
+                analyzer.connect(audioCtx.destination);
             } else {
-                finalEqNode.connect(analyzer); finalEqNode.connect(recDestination); analyzer.connect(audioCtx.destination);
+                finalNode.connect(analyzer); 
+                finalNode.connect(recDestination); 
+                analyzer.connect(audioCtx.destination);
             }
             updateParams();
-        }
-
-        function toggleBypass(i) {
-            bypassStates[i] = !bypassStates[i];
-            document.getElementById(`bp${i+1}`).classList.toggle('active', !bypassStates[i]);
-            reconnectChain();
         }
 
         function updateParams() {
@@ -471,131 +313,95 @@
                     s.low.gain.value = document.getElementById('mtLow').value; s.high.gain.value = document.getElementById('mtHigh').value;
                     s.mid.frequency.value = document.getElementById('mtMidFreq').value; s.mid.gain.value = document.getElementById('mtMidLevel').value;
                 }
-                if (s.type === 'chorus') { 
-                    s.wet.gain.value = document.getElementById('choMix').value; s.dry.gain.value = 1-document.getElementById('choMix').value; 
-                    s.lfo.frequency.value = document.getElementById('choRate').value; s.lfoG.gain.value = 0.002;
-                }
+                if (s.type === 'chorus') { s.wet.gain.value = document.getElementById('choMix').value; s.dry.gain.value = 1-document.getElementById('choMix').value; s.lfo.frequency.value = document.getElementById('choRate').value; s.lfoG.gain.value = 0.002; }
                 if (s.type === 'flanger') { s.wet.gain.value = document.getElementById('flgMix').value; s.dry.gain.value = 1-document.getElementById('flgMix').value; s.lfo.frequency.value = document.getElementById('flgRate').value; }
-                if (s.type === 'wah') { s.filter.frequency.setTargetAtTime(document.getElementById('wahFreq').value, audioCtx.currentTime, 0.05); s.wet.gain.value = document.getElementById('wahMix').value; s.dry.gain.value = 1-document.getElementById('wahMix').value; }
+                
+                if (s.type === 'wah') { 
+                    const mix = parseFloat(document.getElementById('wahMix').value);
+                    s.filter.frequency.setTargetAtTime(document.getElementById('wahFreq').value, audioCtx.currentTime, 0.05); 
+                    s.wet.gain.value = mix * 4.0; 
+                    s.dry.gain.value = 1 - mix; 
+                }
+
                 if (s.type === 'delay') { s.dly.delayTime.setTargetAtTime(document.getElementById('dlyTime').value, audioCtx.currentTime, 0.1); s.wet.gain.value = document.getElementById('dlyMix').value; }
             });
             eqFreqs.forEach((f, i) => { if(eqFilters[i]) eqFilters[i].gain.value = document.getElementById(`eq${i}`).value; });
-            const mix = document.getElementById('eqMix').value; eqWet.gain.value = mix; eqDry.gain.value = 1 - mix;
+            eqWet.gain.value = document.getElementById('eqMix').value; eqDry.gain.value = 1 - document.getElementById('eqMix').value;
+            masterGateNode.threshold.value = document.getElementById('masterGateThreshold').value;
+            const drive = document.getElementById('tubeDrive').value, sag = document.getElementById('tubeSag').value;
+            tubeAmpNode.curve = makeTubeCurve(drive, sag); tubeGainIn.gain.value = drive * 0.5; tubeGainOut.gain.value = document.getElementById('tubeOutput').value;
         }
 
-        function toggleRecording() {
-            if (recorder.state === "inactive") { chunks = []; recorder.start(); document.getElementById('recBtn').innerText = "STOP"; document.getElementById('recBtn').classList.add('recording'); }
-            else { recorder.stop(); document.getElementById('recBtn').innerText = "START"; document.getElementById('recBtn').classList.remove('recording'); }
-        }
-
-        function exportAudio() {
-            const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
-            const link = document.getElementById('downloadLink');
-            link.href = URL.createObjectURL(blob); link.style.display = "inline-block";
-        }
-
-        document.querySelectorAll('input').forEach(i => i.oninput = updateParams);
-
-        /* --- TUNER PITCH DETECTION ALGORITHM --- */
         function autoCorrelate(buf, sampleRate) {
-            let SIZE = buf.length;
-            let rms = 0;
+            let SIZE = buf.length, rms = 0;
             for (let i = 0; i < SIZE; i++) { const val = buf[i]; rms += val * val; }
             rms = Math.sqrt(rms / SIZE);
-            if (rms < 0.01) return -1; // Not enough signal
-
+            if (rms < 0.01) return -1;
             let r1 = 0, r2 = SIZE - 1, thres = 0.2;
-            for (let i = 0; i < SIZE / 2; i++)
-                if (Math.abs(buf[i]) < thres) { r1 = i; break; }
-            for (let i = 1; i < SIZE / 2; i++)
-                if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
-
-            buf = buf.slice(r1, r2);
-            SIZE = buf.length;
-
+            for (let i = 0; i < SIZE / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+            for (let i = 1; i < SIZE / 2; i++) if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+            buf = buf.slice(r1, r2); SIZE = buf.length;
             let c = new Array(SIZE).fill(0);
-            for (let i = 0; i < SIZE; i++)
-                for (let j = 0; j < SIZE - i; j++)
-                    c[i] = c[i] + buf[j] * buf[j + i];
-
+            for (let i = 0; i < SIZE; i++) for (let j = 0; j < SIZE - i; j++) c[i] = c[i] + buf[j] * buf[j + i];
             let d = 0; while (c[d] > c[d + 1]) d++;
             let maxval = -1, maxpos = -1;
-            for (let i = d; i < SIZE; i++) {
-                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
-            }
+            for (let i = d; i < SIZE; i++) if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
             let T0 = maxpos;
-
-            // Parabolic interpolation for precision
-            let x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
-            let a = (x1 + x3 - 2 * x2) / 2;
-            let b = (x3 - x1) / 2;
+            let x1 = c[T0-1], x2 = c[T0], x3 = c[T0+1];
+            let a = (x1 + x3 - 2 * x2) / 2, b = (x3 - x1) / 2;
             if (a) T0 = T0 - b / (2 * a);
-
             return sampleRate / T0;
-        }
-
-        function updateTuner() {
-            if (!tunerAnalyzer) return;
-            const buf = new Float32Array(tunerAnalyzer.fftSize);
-            tunerAnalyzer.getFloatTimeDomainData(buf);
-            const freq = autoCorrelate(buf, audioCtx.sampleRate);
-
-            const nDisplay = document.getElementById('tuneNote');
-            const upArrow = document.getElementById('tuneUp');
-            const downArrow = document.getElementById('tuneDown');
-
-            upArrow.classList.remove('active');
-            downArrow.classList.remove('active');
-            nDisplay.classList.remove('tuned');
-
-            if (freq === -1) {
-                nDisplay.innerText = "--";
-                return;
-            }
-
-            const noteNum = 12 * (Math.log(freq / 440) / Math.log(2)) + 69; // 69 is A4
-            const noteIndex = Math.round(noteNum);
-            const noteName = noteStrings[noteIndex % 12];
-            const detune = Math.floor((noteNum - noteIndex) * 100); // Cents
-
-            nDisplay.innerText = noteName;
-
-            if (Math.abs(detune) < 5) { // In tune (within 5 cents)
-                nDisplay.classList.add('tuned');
-            } else if (detune < -5) {
-                // Too Low -> Fill Top Arrow (Green per request)
-                upArrow.classList.add('active');
-            } else {
-                // Too High -> Fill Bottom Arrow (Red)
-                downArrow.classList.add('active');
-            }
         }
 
         function draw() {
             requestAnimationFrame(draw);
-            
-            // Update Scope
             const canvas = document.getElementById('scope'), c = canvas.getContext('2d');
             const data = new Uint8Array(analyzer.frequencyBinCount);
             analyzer.getByteTimeDomainData(data);
             c.fillStyle = 'black'; c.fillRect(0,0,600,120);
             c.strokeStyle = '#ff4400'; c.lineWidth = 2; c.beginPath();
             let x = 0, slice = 600 / data.length;
-            for(let i=0; i<data.length; i++) {
-                let v = data[i]/128.0, y = v * 60;
-                i===0 ? c.moveTo(x,y) : c.lineTo(x,y); x += slice;
-            }
+            for(let i=0; i<data.length; i++) { let v = data[i]/128.0, y = v * 60; i===0 ? c.moveTo(x,y) : c.lineTo(x,y); x += slice; }
             c.stroke();
 
-            // Update Tuner
-            updateTuner();
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.pancake-btn') && !event.target.parentNode.matches('.pancake-btn') && !event.target.closest('.menu-content')) {
-                document.getElementById('pancakeMenu').classList.remove('show');
+            if (tunerAnalyzer && audioCtx.state === 'running') {
+                const buf = new Float32Array(tunerAnalyzer.fftSize);
+                tunerAnalyzer.getFloatTimeDomainData(buf);
+                const freq = autoCorrelate(buf, audioCtx.sampleRate);
+                const nDisplay = document.getElementById('tuneNote'), upA = document.getElementById('tuneUp'), dwA = document.getElementById('tuneDown');
+                upA.classList.remove('active'); dwA.classList.remove('active'); nDisplay.classList.remove('tuned');
+                if (freq !== -1) {
+                    const noteNum = 12 * (Math.log(freq / 440) / Math.log(2)) + 69;
+                    const noteIndex = Math.round(noteNum), detune = Math.floor((noteNum - noteIndex) * 100);
+                    nDisplay.innerText = noteStrings[noteIndex % 12];
+                    if (Math.abs(detune) < 5) nDisplay.classList.add('tuned');
+                    else if (detune < -5) upA.classList.add('active'); else dwA.classList.add('active');
+                } else { nDisplay.innerText = "--"; }
             }
         }
+
+        function toggleBypass(i) { bypassStates[i] = !bypassStates[i]; document.getElementById(`bp${i+1}`).classList.toggle('active', !bypassStates[i]); reconnectChain(); }
+        function toggleGatePower() { isGateOn = !isGateOn; refreshUIState(); reconnectChain(); }
+        function toggleTubePower() { isTubeOn = !isTubeOn; refreshUIState(); reconnectChain(); }
+        function toggleStereo() { isStereo = !isStereo; refreshUIState(); reconnectChain(); }
+        function refreshUIState() {
+            document.getElementById('stereoBtn').innerText = isStereo ? "STEREO ON" : "STEREO OFF"; document.getElementById('stereoBtn').classList.toggle('active', isStereo);
+            document.getElementById('gateToggle').innerText = isGateOn ? "GATE ON" : "GATE OFF"; document.getElementById('gateToggle').classList.toggle('active', isGateOn);
+            document.getElementById('tubeToggle').innerText = isTubeOn ? "TUBE ON" : "TUBE OFF"; document.getElementById('tubeToggle').classList.toggle('active', isTubeOn);
+        }
+        function makeTubeCurve(drive, sag) { const n = 44100; const curve = new Float32Array(n); for (let i = 0; i < n; i++) { let x = (i * 2) / n - 1; if (x > 0) curve[i] = (1 - Math.exp(-drive * x)) * (1 - sag * 0.2); else curve[i] = - (1 - Math.exp(drive * x * 0.8)); } return curve; }
+        function createBypass() { const n = { in: audioCtx.createGain(), out: audioCtx.createGain(), type: 'bypass' }; n.in.connect(n.out); return n; }
+        function createHaas() { const c = audioCtx; const input = c.createGain(), merger = c.createChannelMerger(2), delay = c.createDelay(); delay.delayTime.value = 0.02; input.connect(merger, 0, 0); input.connect(delay); delay.connect(merger, 0, 1); return { in: input, out: merger }; }
+        function toggleRecording() { if (recorder.state === "inactive") { chunks = []; recorder.start(); document.getElementById('recBtn').innerText = "STOP"; document.getElementById('recBtn').classList.add('recording'); } else { recorder.stop(); document.getElementById('recBtn').innerText = "START"; document.getElementById('recBtn').classList.remove('recording'); } }
+        function exportAudio() { const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' }); const link = document.getElementById('downloadLink'); link.href = URL.createObjectURL(blob); link.style.display = "inline-block"; }
+        document.querySelectorAll('input').forEach(i => i.oninput = updateParams);
+        window.onclick = e => { if (!e.target.closest('.pancake-btn') && !e.target.closest('.menu-content')) document.getElementById('pancakeMenu').classList.remove('show'); };
+
+        function createMetal() { const c = audioCtx; const n = { in: c.createGain(), gate: c.createDynamicsCompressor(), dist: c.createWaveShaper(), low: c.createBiquadFilter(), high: c.createBiquadFilter(), mid: c.createBiquadFilter(), out: c.createGain(), type: 'metal' }; n.gate.ratio.value = 20; n.low.type = "lowshelf"; n.low.frequency.value = 120; n.high.type = "highshelf"; n.high.frequency.value = 3800; n.mid.type = "peaking"; n.mid.Q.value = 1.4; n.in.connect(n.gate); n.gate.connect(n.dist); n.dist.connect(n.low); n.low.connect(n.high); n.high.connect(n.mid); n.mid.connect(n.out); return n; }
+        function createChorus() { const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), out: c.createGain(), type: 'chorus' }; n.dly.delayTime.value = 0.03; n.lfo.type = 'sine'; n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); return n; }
+        function createFlanger() { const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(), lfo: c.createOscillator(), lfoG: c.createGain(), fb: c.createGain(), out: c.createGain(), type: 'flanger' }; n.dly.delayTime.value = 0.005; n.lfo.connect(n.lfoG); n.lfoG.connect(n.dly.delayTime); n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.fb); n.fb.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.lfo.start(); n.lfoG.gain.value = 0.002; n.fb.gain.value = 0.5; return n; }
+        function createWah() { const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), filter: c.createBiquadFilter(), out: c.createGain(), type: 'wah' }; n.filter.type = "bandpass"; n.filter.Q.value = 15; n.in.connect(n.dry); n.in.connect(n.filter); n.filter.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); return n; }
+        function createDelay() { const c = audioCtx; const n = { in: c.createGain(), dry: c.createGain(), wet: c.createGain(), dly: c.createDelay(2.0), fb: c.createGain(), out: c.createGain(), type: 'delay' }; n.in.connect(n.dry); n.in.connect(n.dly); n.dly.connect(n.fb); n.fb.connect(n.dly); n.dly.connect(n.wet); n.dry.connect(n.out); n.wet.connect(n.out); n.fb.gain.value=0.3; return n; }
     </script>
 </body>
 </html>
