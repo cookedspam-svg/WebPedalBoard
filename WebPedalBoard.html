@@ -24,7 +24,6 @@
         .menu-content button:hover { background: #333; }
         .btn-danger { color: #ff4444 !important; }
 
-        /* Modified routing panel margin to accommodate the tube preamp moving above it */
         .routing-panel { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #444; margin-bottom: 15px; width: 95%; max-width: 1170px; margin-top: 15px; }
         .slot-container { display: flex; justify-content: space-around; align-items: center; gap: 5px; flex-wrap: wrap; }
         .slot { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #2a2a2a; padding: 10px; border-radius: 8px; border: 1px solid #444; }
@@ -56,7 +55,9 @@
         .horizontal-module { display: flex; align-items: center; gap: 20px; }
         .module-title { font-size: 0.75rem; color: #888; text-transform: uppercase; min-width: 150px; font-weight: bold; }
         .toggle-btn { padding: 8px 15px; border-radius: 4px; border: 1px solid #444; background: #222; color: #666; cursor: pointer; font-size: 10px; font-weight: bold; }
-        .toggle-btn.active { background: var(--accent); color: white; border-color: #ff6600; box-shadow: 0 0 10px rgba(255,68,0,0.3); }
+        
+        /* Updated: All active toggle buttons now use the stomp box green (#0f0) */
+        .toggle-btn.active { background: #0f0; color: black; border-color: #00ff00; box-shadow: 0 0 10px rgba(0,255,0,0.5); }
 
         .bottom-row { display: flex; gap: 15px; align-items: center; justify-content: center; width: 95%; max-width: 1200px; margin-bottom: 20px; margin-top: 20px; }
         
@@ -85,7 +86,9 @@
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .power-btn { padding: 12px 40px; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 50px; border: 2px solid #444; background: #222; color: #666; margin-bottom: 15px; }
-        .power-btn.on { background: #f00; color: white; border-color: #ffaaaa; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
+        
+        /* Updated: Master power button now turns green (#0f0) when ON */
+        .power-btn.on { background: #0f0; color: black; border-color: #00ff00; box-shadow: 0 0 15px rgba(0,255,0,0.5); }
     </style>
 </head>
 <body>
@@ -112,7 +115,7 @@
     <div class="tube-container">
         <div class="horizontal-module">
             <div class="module-title">Tube Preamp Emulator</div>
-            <button id="tubeToggle" class="toggle-btn active" onclick="toggleTubePower()">TUBE ON</button>
+            <button id="tubeToggle" class="toggle-btn" onclick="toggleTubePower()">TUBE OFF</button>
             <div style="flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                 <div style="display: flex; flex-direction: column; gap: 5px;"><span class="eq-label" style="margin-top:0">Drive</span><input type="range" min="1" max="20" step="0.1" value="5" id="tubeDrive" style="accent-color: var(--accent);"></div>
                 <div style="display: flex; flex-direction: column; gap: 5px;"><span class="eq-label" style="margin-top:0">Tube Sag</span><input type="range" min="0" max="1" step="0.01" value="0.5" id="tubeSag" style="accent-color: var(--accent);"></div>
@@ -124,11 +127,11 @@
     <div class="routing-panel">
         <div class="slot-container">
             🎸
-            <div class="slot"><select id="slot1" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp1" class="bypass-stomp active" onclick="toggleBypass(0)">ON</button></div> →
-            <div class="slot"><select id="slot2" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal" selected>MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp2" class="bypass-stomp active" onclick="toggleBypass(1)">ON</button></div> →
-            <div class="slot"><select id="slot3" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus" selected>Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp3" class="bypass-stomp active" onclick="toggleBypass(2)">ON</button></div> →
-            <div class="slot"><select id="slot4" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger" selected>Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp4" class="bypass-stomp active" onclick="toggleBypass(3)">ON</button></div> →
-            <div class="slot"><select id="slot5" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay" selected>Delay</option><option value="bypass">Empty</option></select><button id="bp5" class="bypass-stomp active" onclick="toggleBypass(4)">ON</button></div> → 🔊
+            <div class="slot"><select id="slot1" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp1" class="bypass-stomp" onclick="toggleBypass(0)">OFF</button></div> →
+            <div class="slot"><select id="slot2" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal" selected>MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp2" class="bypass-stomp" onclick="toggleBypass(1)">OFF</button></div> →
+            <div class="slot"><select id="slot3" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus" selected>Chorus</option><option value="flanger">Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp3" class="bypass-stomp" onclick="toggleBypass(2)">OFF</button></div> →
+            <div class="slot"><select id="slot4" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger" selected>Flanger</option><option value="delay">Delay</option><option value="bypass">Empty</option></select><button id="bp4" class="bypass-stomp" onclick="toggleBypass(3)">OFF</button></div> →
+            <div class="slot"><select id="slot5" onchange="reconnectChain()"><option value="wah">Wah</option><option value="metal">MT-2</option><option value="chorus">Chorus</option><option value="flanger">Flanger</option><option value="delay" selected>Delay</option><option value="bypass">Empty</option></select><button id="bp5" class="bypass-stomp" onclick="toggleBypass(4)">OFF</button></div> → 🔊
         </div>
     </div>
 
@@ -177,7 +180,7 @@
     <div class="gate-container">
         <div class="horizontal-module">
             <div class="module-title">Master Noise Gate</div>
-            <button id="gateToggle" class="toggle-btn active" onclick="toggleGatePower()">GATE ON</button>
+            <button id="gateToggle" class="toggle-btn" onclick="toggleGatePower()">GATE OFF</button>
             <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px;">
                 <span class="eq-label" style="margin-top:0">Threshold (dB)</span>
                 <input type="range" min="-100" max="-20" step="1" value="-60" id="masterGateThreshold" style="accent-color: var(--accent);">
@@ -189,12 +192,14 @@
         let audioCtx, mic, analyzer, tunerAnalyzer, masterLimiter, recorder, recDestination;
         let chunks = [];
         let slots = [null, null, null, null, null]; 
-        let bypassStates = [false, false, false, false, false];
+        // Initialized all slots to BYPASS (true)
+        let bypassStates = [true, true, true, true, true];
         let eqFilters = [];
         let eqDry, eqWet, stereoNode, isStereo = false;
         
         let masterGateNode, tubeAmpNode, tubeGainIn, tubeGainOut;
-        let isGateOn = true, isTubeOn = true;
+        // Initialized Gate and Tube to OFF (false)
+        let isGateOn = false, isTubeOn = false;
 
         const eqFreqs = [32, 64, 125, 250, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000];
         const noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -380,7 +385,7 @@
             }
         }
 
-        function toggleBypass(i) { bypassStates[i] = !bypassStates[i]; document.getElementById(`bp${i+1}`).classList.toggle('active', !bypassStates[i]); reconnectChain(); }
+        function toggleBypass(i) { bypassStates[i] = !bypassStates[i]; document.getElementById(`bp${i+1}`).innerText = bypassStates[i] ? "OFF" : "ON"; document.getElementById(`bp${i+1}`).classList.toggle('active', !bypassStates[i]); reconnectChain(); }
         function toggleGatePower() { isGateOn = !isGateOn; refreshUIState(); reconnectChain(); }
         function toggleTubePower() { isTubeOn = !isTubeOn; refreshUIState(); reconnectChain(); }
         function toggleStereo() { isStereo = !isStereo; refreshUIState(); reconnectChain(); }
